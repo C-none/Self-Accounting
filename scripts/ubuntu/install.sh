@@ -30,10 +30,12 @@ fi
 
 if [ -d "$PACKAGE_ROOT/web" ]; then
   WEB_SRC="$PACKAGE_ROOT/web"
+elif [ -d "$PACKAGE_ROOT/dist/release/web" ]; then
+  WEB_SRC="$PACKAGE_ROOT/dist/release/web"
 elif [ -d "$PACKAGE_ROOT/client/build/web" ]; then
   WEB_SRC="$PACKAGE_ROOT/client/build/web"
 else
-  echo "Flutter Web release directory not found in package root or client/build/web" >&2
+  echo "Flutter Web release directory not found in package root, dist/release/web or client/build/web" >&2
   exit 1
 fi
 
