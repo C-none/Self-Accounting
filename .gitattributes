@@ -1,0 +1,20 @@
+* text=auto
+
+*.sh text eol=lf
+dist/release/**/*.js text eol=lf
+dist/release/**/*.json text eol=lf
+dist/release/**/*.html text eol=lf
+dist/release/**/*.txt text eol=lf
+dist/release/**/*.frag text eol=lf
+dist/release/**/*.symbols text eol=lf
+
+*.apk binary
+*.bin binary
+*.db binary
+*.exe binary
+*.gz binary
+*.jar binary
+*.otf binary
+*.png binary
+*.wasm binary
+*.zip binary
