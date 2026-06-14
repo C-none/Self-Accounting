@@ -16,7 +16,6 @@ config.visual-test.json
 *.swo
 
 # Release/build outputs
-dist/
 build/
 
 # Flutter/Dart
