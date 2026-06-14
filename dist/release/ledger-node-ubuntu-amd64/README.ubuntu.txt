@@ -19,10 +19,12 @@ Optional install variables:
 Release install reads:
   ledger-server or dist/release/ubuntu-amd64/ledger-server
   web/ or dist/release/web
+  app-*-release.apk or dist/release/android/*.apk
 
 Dev install reads:
   dist/dev/ubuntu-amd64/ledger-server
   client/build/web
+  client/build/app/outputs/flutter-apk/*.apk
 
 Start:
   /opt/ledger-node/scripts/start.sh

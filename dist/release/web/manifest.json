@@ -1,11 +1,11 @@
 {
-    "name": "ledger_client",
-    "short_name": "ledger_client",
+    "name": "小小记账",
+    "short_name": "小小记账",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "小小记账",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

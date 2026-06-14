@@ -25,8 +25,10 @@ fi
 APK_SRC=""
 if [ -f "$PACKAGE_ROOT/app-release.apk" ]; then
   APK_SRC="$PACKAGE_ROOT/app-release.apk"
-elif [ -f "$PACKAGE_ROOT/dist/release/android/app-release.apk" ]; then
-  APK_SRC="$PACKAGE_ROOT/dist/release/android/app-release.apk"
+elif compgen -G "$PACKAGE_ROOT/app-*-release.apk" >/dev/null; then
+  APK_SRC="$PACKAGE_ROOT"
+elif [ -d "$PACKAGE_ROOT/dist/release/android" ]; then
+  APK_SRC="$PACKAGE_ROOT/dist/release/android"
 fi
 
 export LEDGER_DEFAULT_APP_DIR="${LEDGER_DEFAULT_APP_DIR:-/opt/ledger-node}"

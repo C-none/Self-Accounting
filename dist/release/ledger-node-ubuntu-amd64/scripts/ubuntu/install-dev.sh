@@ -6,7 +6,7 @@ PACKAGE_ROOT="$(cd -- "$SCRIPT_DIR/../.." && pwd)"
 
 SERVER_SRC="${LEDGER_DEV_SERVER_SRC:-$PACKAGE_ROOT/dist/dev/ubuntu-amd64/ledger-server}"
 WEB_SRC="${LEDGER_DEV_WEB_SRC:-$PACKAGE_ROOT/client/build/web}"
-APK_SRC="${LEDGER_DEV_APK_SRC:-$PACKAGE_ROOT/client/build/app/outputs/flutter-apk/app-release.apk}"
+APK_SRC="${LEDGER_DEV_APK_SRC:-$PACKAGE_ROOT/client/build/app/outputs/flutter-apk}"
 
 export LEDGER_DEFAULT_APP_DIR="${LEDGER_DEFAULT_APP_DIR:-/opt/ledger-node-dev}"
 export LEDGER_DEFAULT_PUBLIC_BASE_URL="${LEDGER_DEFAULT_PUBLIC_BASE_URL:-http://127.0.0.1:8080}"

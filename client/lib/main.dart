@@ -34,7 +34,7 @@ class _LedgerAppState extends State<LedgerApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: '家庭记账',
+      title: '小小记账',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme:

@@ -1,4 +1,4 @@
-# 家庭记账系统启动说明
+# 小小记账启动说明
 
 本项目由 Go + SQLite 服务端和 Flutter 客户端组成。Flutter 同一套代码覆盖 Web 和 Android，Web 由 Go 服务端托管，Android 可连接本机服务端或公网服务端。
 
@@ -284,6 +284,20 @@ Android release：
 ```powershell
 cd client
 flutter build apk --release --dart-define=LEDGER_API_BASE=https://your-domain.example
+```
+
+发布 APK 按 ABI 分开打包：
+
+```powershell
+flutter build apk --release --split-per-abi --dart-define=LEDGER_API_BASE=https://your-domain.example
+```
+
+产物会生成到 `client/build/app/outputs/flutter-apk/`，release 目录归档为：
+
+```text
+dist/release/android/app-armeabi-v7a-release.apk
+dist/release/android/app-arm64-v8a-release.apk
+dist/release/android/app-x86_64-release.apk
 ```
 
 生产公网环境必须使用 HTTPS，并在配置中设置：

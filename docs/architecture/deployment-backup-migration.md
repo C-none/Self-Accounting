@@ -16,7 +16,7 @@ Flutter Web 生产产物嵌入 Go 二进制或作为同目录静态资源由 Go 
 Ubuntu release 包应包含 `scripts/ubuntu/` 下的固定运维脚本：
 
 - `install.sh`：兼容入口，等同于 `install-release.sh`。
-- `install-release.sh`：从发布包根目录或 `dist/release/` 安装 `ledger-server`、`web/`、运维脚本和可选 APK 到目标目录。
+- `install-release.sh`：从发布包根目录或 `dist/release/` 安装 `ledger-server`、`web/`、运维脚本和可选 APK 到目标目录；`dist/release/android/` 中的多个 split-per-ABI APK 会一起复制到 `releases/`。
 - `install-dev.sh`：从 dev 构建路径安装，默认读取 `dist/dev/ubuntu-amd64/ledger-server` 和 `client/build/web`，仅用于有构建环境的开发机或临时测试机。
 - `install-common.sh`：安装公共实现，被 dev/release 安装脚本调用，不作为用户直接入口。
 - `start.sh`：用 `nohup` 启动服务，写入 `run/ledger-server.pid` 和 `logs/ledger-server.log`。

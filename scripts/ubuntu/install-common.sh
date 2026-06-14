@@ -52,8 +52,14 @@ fi
 "${SUDO[@]}" cp -a "$SCRIPT_DIR/." "$APP_DIR/scripts/"
 "${SUDO[@]}" chmod +x "$APP_DIR/scripts/"*.sh
 
-if [ -n "$APK_SRC" ] && [ -f "$APK_SRC" ]; then
-  "${SUDO[@]}" install -m 0644 "$APK_SRC" "$APP_DIR/releases/app-release.apk"
+if [ -n "$APK_SRC" ]; then
+  if [ -f "$APK_SRC" ]; then
+    "${SUDO[@]}" install -m 0644 "$APK_SRC" "$APP_DIR/releases/$(basename "$APK_SRC")"
+  elif [ -d "$APK_SRC" ]; then
+    while IFS= read -r apk_file; do
+      "${SUDO[@]}" install -m 0644 "$apk_file" "$APP_DIR/releases/$(basename "$apk_file")"
+    done < <(find "$APK_SRC" -maxdepth 1 -type f -name "*.apk" -print)
+  fi
 fi
 
 if [ ! -f "$APP_DIR/config.json" ]; then

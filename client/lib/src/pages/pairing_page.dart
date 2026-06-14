@@ -46,7 +46,7 @@ class _PairingPageState extends State<PairingPage> {
           maxWidth: kNarrowFormMaxWidth,
           topPadding: isDesktopWidth(context) ? 72 : 20,
           children: [
-            Text('家庭记账', style: Theme.of(context).textTheme.headlineSmall),
+            Text('小小记账', style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 8),
             const Text(
               '输入一次性配对码后保存设备 token。未配对设备不能在页面直接获得配对码，只能请求服务端在命令行打印配对码。',
