@@ -58,6 +58,8 @@
 | Done | Add SMS multi-select import | SMS Client | Android SMS page supports multi-select, select-all/cancel-all and one-click import for selected candidates | SMS confirmation UI |
 | Done | Add manual SMS templates and enable filters | SMS Client | Android manually stores multiple local templates per sender/account, extracts brace fields from enabled templates, and ignores SMS that do not match enabled templates | SMS parser |
 | Done | Show SMS raw body locally and hide imported candidates | SMS Client | Android import candidates and confirm page show local SMS text for verification; successful or duplicate imports are recorded by hash locally and hidden from later scans | Manual SMS templates |
+| Done | Add SMS hidden-record reset | SMS Client | Android SMS import page can clear local imported-hash cache without deleting templates, token, or server transactions | Show SMS raw body locally and hide imported candidates |
+| Done | Add SMS scan diagnostics | SMS Client | Android empty scans show local non-sensitive counts for read rows, sender 95588 rows, template matches, candidates and hidden hashes | Manual SMS templates |
 | Done | Add Bayesian SMS category suggestions | SMS Client / Server | Android SMS candidates request server category suggestions from structured fields only; service uses historical transactions with fallback to local rules and never accepts SMS raw body | Manual SMS templates |
 
 ## Phase 4: Statistics Refinement

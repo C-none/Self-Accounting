@@ -78,7 +78,7 @@ class MainActivity : FlutterActivity() {
 
     private fun scanSms(sinceMillis: Long, limit: Int): List<Map<String, Any>> {
         val out = mutableListOf<Map<String, Any>>()
-        val uri = Uri.parse("content://sms/inbox")
+        val uri = Uri.parse("content://sms")
         val projection = arrayOf("_id", "address", "date", "body")
         val selection = if (sinceMillis > 0) "date >= ?" else null
         val selectionArgs = if (sinceMillis > 0) arrayOf(sinceMillis.toString()) else null

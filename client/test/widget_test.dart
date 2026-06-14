@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ledger_client/src/api_client.dart';
 import 'package:ledger_client/src/models.dart';
@@ -315,6 +316,17 @@ void main() {
     expect(differentSender!.smsHash, isNot(compact.smsHash));
     expect(differentTime!.smsHash, isNot(compact.smsHash));
     expect(differentBootstrap!.smsHash, compact.smsHash);
+  });
+
+  test('clears local imported SMS hash cache', () async {
+    FlutterSecureStorage.setMockInitialValues({});
+    final store = SmsImportedHashStore(storage: const FlutterSecureStorage());
+
+    await store.addAll(['hash-a', 'hash-b']);
+    expect(await store.load(), containsAll(['hash-a', 'hash-b']));
+
+    await store.clear();
+    expect(await store.load(), isEmpty);
   });
 
   test('parses ICBC complex card SMS with bank and balance fields', () {

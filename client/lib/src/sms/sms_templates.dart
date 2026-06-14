@@ -147,6 +147,10 @@ class SmsImportedHashStore {
         : values.sublist(values.length - _maxHashes);
     await _storage.write(key: _key, value: jsonEncode(trimmed));
   }
+
+  Future<void> clear() {
+    return _storage.write(key: _key, value: jsonEncode(const <String>[]));
+  }
 }
 
 String encodeSmsTemplates(List<SmsTemplate> templates) {

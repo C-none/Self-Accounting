@@ -92,6 +92,13 @@ class _SmsImportPageState extends State<SmsImportPage> {
                   icon: const Icon(Icons.sms),
                   label: const Text('重新扫描'),
                 ),
+                OutlinedButton.icon(
+                  onPressed: loading || importingSelected
+                      ? null
+                      : _clearHiddenSmsRecords,
+                  icon: const Icon(Icons.cleaning_services_outlined),
+                  label: const Text('清除本机短信隐藏记录'),
+                ),
                 if (candidates.isNotEmpty && !selectionMode)
                   OutlinedButton.icon(
                     onPressed: importingSelected ? null : _enterSelectionMode,
@@ -238,8 +245,38 @@ class _SmsImportPageState extends State<SmsImportPage> {
         throw Exception('导入起始日期不能晚于结束日期');
       }
       final templates = await templateStore.load();
-      final next = await adapter.scanRecent(
-        bootstrap: widget.controller.bootstrapData ?? bootstrap,
+      final currentBootstrap = widget.controller.bootstrapData ?? bootstrap;
+      final rows = await adapter.readRecentRows(
+        fromDate: filterFromDate,
+        limit: 200,
+      );
+      final rowCount = rows.where(_rowInFilterRange).length;
+      final nonEmptyBodyCount = rows
+          .where(_rowInFilterRange)
+          .where((row) => (row['body']?.toString().trim() ?? '').isNotEmpty)
+          .length;
+      final icbcSenderCount = rows
+          .where(_rowInFilterRange)
+          .where(
+            (row) =>
+                normalizeSmsSender(row['sender']?.toString() ?? '') == '95588',
+          )
+          .length;
+      final templateMatchCount = rows
+          .where(_rowInFilterRange)
+          .where(
+            (row) =>
+                matchEnabledSmsTemplateWithValues(
+                  body: row['body']?.toString() ?? '',
+                  sender: row['sender']?.toString() ?? '',
+                  templates: templates,
+                ) !=
+                null,
+          )
+          .length;
+      final next = parseSmsRows(
+        rows,
+        currentBootstrap,
         fromDate: filterFromDate,
         toDate: filterToDate,
         bankName: bankNameFilter,
@@ -251,13 +288,16 @@ class _SmsImportPageState extends State<SmsImportPage> {
           .where((candidate) => !importedHashes.contains(candidate.smsHash))
           .toList();
       final suggested = await _withCategorySuggestions(visible);
+      final hiddenCount = next.length - visible.length;
       if (mounted) {
         setState(() {
           candidates = suggested;
           selectedHashes.clear();
           selectionMode = false;
           error = null;
-          notice = null;
+          notice = suggested.isEmpty
+              ? '扫描${formatCompactDate(filterFromDate)}-${formatCompactDate(filterToDate)}：读取${rows.length}条，范围内$rowCount条，95588 $icbcSenderCount条，正文$nonEmptyBodyCount条，模板${templates.length}个，匹配$templateMatchCount条，候选${next.length}条，隐藏$hiddenCount条'
+              : null;
         });
       }
     } catch (e) {
@@ -269,6 +309,24 @@ class _SmsImportPageState extends State<SmsImportPage> {
         setState(() => loading = false);
       }
     }
+  }
+
+  bool _rowInFilterRange(Map<String, dynamic> row) {
+    final dateMillis = (row['dateMillis'] as num?)?.toInt() ?? 0;
+    final fromMillis = DateTime(
+      filterFromDate.year,
+      filterFromDate.month,
+      filterFromDate.day,
+    ).millisecondsSinceEpoch;
+    final toMillis = DateTime(
+      filterToDate.year,
+      filterToDate.month,
+      filterToDate.day,
+      23,
+      59,
+      59,
+    ).millisecondsSinceEpoch;
+    return dateMillis >= fromMillis && dateMillis <= toMillis;
   }
 
   Future<void> _poll() async {
@@ -325,6 +383,49 @@ class _SmsImportPageState extends State<SmsImportPage> {
       return applyCategorySuggestions(values, suggestions);
     } catch (_) {
       return values;
+    }
+  }
+
+  Future<void> _clearHiddenSmsRecords() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('清除本机短信隐藏记录'),
+        content: const Text('已导入交易不会删除。清除后可重新扫描短信。'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('取消'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('清除'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) {
+      return;
+    }
+    try {
+      await importedHashStore.clear();
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        candidates = [];
+        selectedHashes.clear();
+        selectionMode = false;
+        error = null;
+        notice = '已清除本机短信隐藏记录，请重新扫描';
+      });
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          error = e.toString();
+          notice = null;
+        });
+      }
     }
   }
 
