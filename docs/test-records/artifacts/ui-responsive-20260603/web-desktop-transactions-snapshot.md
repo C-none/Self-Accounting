@@ -1,0 +1,17 @@
+- generic [ref=e5] [box=0,0,1037,906]:
+  - generic [box=0,0,0,0]:
+    - generic [box=0,0,1037,906]:
+      - generic [box=0,0,1037,906]:
+        - generic [box=0,0,1037,906]:
+          - generic [box=0,0,1037,906]:
+            - generic [box=0,0,184,906]:
+              - button "交易 Tab 1 of 3" [active] [ref=e6] [box=0,28,184,44]
+              - button "统计 Tab 2 of 3" [ref=e7] [box=0,72,184,44]
+              - button "设置 Tab 3 of 3" [ref=e8] [box=0,116,184,44]
+            - generic [box=185,0,852,56]:
+              - heading "交易" [level=2] [ref=e9] [box=201,14,44,28]
+              - button "刷新" [ref=e10] [box=997,8,40,40]
+            - generic [box=185,56,852,850]:
+              - group [box=185,56,852,850]:
+                - generic [box=225,80,772,384]
+            - button "新增" [ref=e23] [box=925,834,96,56]

@@ -1,0 +1,52 @@
+# Local runtime data
+var/
+*.db
+*.db-*
+*.sqlite
+*.sqlite-*
+*.secret
+*.token
+
+# Local config and editor state
+config.dev.json
+config.visual-test.json
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Release/build outputs
+dist/
+build/
+
+# Flutter/Dart
+client/.dart_tool/
+client/.flutter-plugins
+client/.flutter-plugins-dependencies
+client/.packages
+client/build/
+client/.pub-cache/
+client/coverage/
+
+# Android/Gradle
+client/android/.gradle/
+client/android/app/build/
+client/android/local.properties
+client/android/key.properties
+client/android/**/keystore.properties
+client/android/**/*.jks
+client/android/**/*.keystore
+
+# Web/browser automation artifacts
+.playwright-mcp/
+playwright-report/
+test-results/
+
+# Go
+*.test
+*.out
+coverage.out
+
+# OS files
+Thumbs.db
+.DS_Store

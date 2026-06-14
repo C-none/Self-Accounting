@@ -1,0 +1,257 @@
+{
+  "generated_at": "2026-06-01T15:11:12Z",
+  "manifest": "current/manifest-current.json",
+  "count": 25,
+  "items": [
+    {
+      "track": "current-primary",
+      "kind": "official-doc",
+      "title": "Flutter app architecture guide",
+      "path": "current/flutter/app_architecture.html",
+      "url": "https://docs.flutter.dev/app-architecture/guide",
+      "note": "Shared Flutter architecture for Android and Web",
+      "bytes": 153522,
+      "fetched_at": "2026-06-01T15:04:17Z"
+    },
+    {
+      "track": "current-primary",
+      "kind": "official-doc",
+      "title": "Flutter web building",
+      "path": "current/flutter/web_building.html",
+      "url": "https://docs.flutter.dev/platform-integration/web/building",
+      "note": "Flutter Web build and renderer options",
+      "bytes": 144906,
+      "fetched_at": "2026-06-01T15:04:18Z"
+    },
+    {
+      "track": "current-primary",
+      "kind": "official-doc",
+      "title": "Flutter web deployment",
+      "path": "current/flutter/web_deployment.html",
+      "url": "https://docs.flutter.dev/deployment/web",
+      "note": "Flutter Web deployment and base href",
+      "bytes": 138211,
+      "fetched_at": "2026-06-01T15:04:18Z"
+    },
+    {
+      "track": "current-primary",
+      "kind": "official-doc",
+      "title": "Flutter Android deployment",
+      "path": "current/flutter/android_deployment.html",
+      "url": "https://docs.flutter.dev/deployment/android",
+      "note": "Android release build and signing",
+      "bytes": 237053,
+      "fetched_at": "2026-06-01T15:04:19Z"
+    },
+    {
+      "track": "current-primary",
+      "kind": "official-doc",
+      "title": "Flutter app size",
+      "path": "current/flutter/app_size.html",
+      "url": "https://docs.flutter.dev/perf/app-size",
+      "note": "App size analysis and size reduction",
+      "bytes": 140255,
+      "fetched_at": "2026-06-01T15:04:19Z"
+    },
+    {
+      "track": "current-primary",
+      "kind": "official-doc",
+      "title": "Flutter performance best practices",
+      "path": "current/flutter/performance_best_practices.html",
+      "url": "https://docs.flutter.dev/perf/best-practices",
+      "note": "Startup and UI performance guidance",
+      "bytes": 159459,
+      "fetched_at": "2026-06-01T15:04:19Z"
+    },
+    {
+      "track": "current-primary",
+      "kind": "official-doc",
+      "title": "Flutter platform channels",
+      "path": "current/flutter/platform_channels.html",
+      "url": "https://docs.flutter.dev/platform-integration/platform-channels",
+      "note": "Android-only SMS integration bridge",
+      "bytes": 507370,
+      "fetched_at": "2026-06-01T15:04:20Z"
+    },
+    {
+      "track": "current-primary",
+      "kind": "official-doc",
+      "title": "Flutter integration tests",
+      "path": "current/flutter/integration_tests.html",
+      "url": "https://docs.flutter.dev/testing/integration-tests",
+      "note": "Client closed-loop and emulator tests",
+      "bytes": 234602,
+      "fetched_at": "2026-06-01T15:04:20Z"
+    },
+    {
+      "track": "current-primary",
+      "kind": "official-doc",
+      "title": "Go net/http",
+      "path": "current/backend/go/net_http.html",
+      "url": "https://pkg.go.dev/net/http",
+      "note": "HTTP server, mux, static file serving",
+      "bytes": 475952,
+      "fetched_at": "2026-06-01T15:04:22Z"
+    },
+    {
+      "track": "current-primary",
+      "kind": "official-doc",
+      "title": "Go embed",
+      "path": "current/backend/go/embed.html",
+      "url": "https://pkg.go.dev/embed",
+      "note": "Embedding Flutter Web static assets",
+      "bytes": 59783,
+      "fetched_at": "2026-06-01T15:04:22Z"
+    },
+    {
+      "track": "current-primary",
+      "kind": "official-doc",
+      "title": "Go command",
+      "path": "current/backend/go/cmd_go.html",
+      "url": "https://pkg.go.dev/cmd/go",
+      "note": "Cross compile and release builds",
+      "bytes": 250764,
+      "fetched_at": "2026-06-01T15:04:23Z"
+    },
+    {
+      "track": "current-primary",
+      "kind": "official-doc",
+      "title": "Go database/sql",
+      "path": "current/backend/go/database_sql.html",
+      "url": "https://pkg.go.dev/database/sql",
+      "note": "SQLite access abstraction",
+      "bytes": 256574,
+      "fetched_at": "2026-06-01T15:04:24Z"
+    },
+    {
+      "track": "current-primary",
+      "kind": "official-doc",
+      "title": "SQLite WAL",
+      "path": "current/backend/sqlite/wal.html",
+      "url": "https://www.sqlite.org/wal.html",
+      "note": "WAL mode and checkpointing",
+      "bytes": 41826,
+      "fetched_at": "2026-06-01T15:04:26Z"
+    },
+    {
+      "track": "current-primary",
+      "kind": "official-doc",
+      "title": "SQLite backup API",
+      "path": "current/backend/sqlite/backup.html",
+      "url": "https://www.sqlite.org/backup.html",
+      "note": "Consistent online backups",
+      "bytes": 28195,
+      "fetched_at": "2026-06-01T15:04:27Z"
+    },
+    {
+      "track": "current-primary",
+      "kind": "official-doc",
+      "title": "SQLite transactions",
+      "path": "current/backend/sqlite/transactions.html",
+      "url": "https://www.sqlite.org/lang_transaction.html",
+      "note": "Write transaction boundaries",
+      "bytes": 27068,
+      "fetched_at": "2026-06-01T15:04:28Z"
+    },
+    {
+      "track": "current-primary",
+      "kind": "official-doc",
+      "title": "SQLite PRAGMA",
+      "path": "current/backend/sqlite/pragma.html",
+      "url": "https://www.sqlite.org/pragma.html",
+      "note": "busy_timeout, journal_mode, checkpoint pragmas",
+      "bytes": 139778,
+      "fetched_at": "2026-06-01T15:04:30Z"
+    },
+    {
+      "track": "current-primary",
+      "kind": "official-doc",
+      "title": "Android Telephony SMS intents",
+      "path": "current/android/sms_intents.html",
+      "url": "https://developer.android.com/reference/android/provider/Telephony.Sms.Intents",
+      "note": "SMS_RECEIVED_ACTION behavior",
+      "bytes": 2235295,
+      "fetched_at": "2026-06-01T15:04:31Z"
+    },
+    {
+      "track": "current-primary",
+      "kind": "official-doc",
+      "title": "Android Telephony SMS inbox",
+      "path": "current/android/sms_inbox.html",
+      "url": "https://developer.android.com/reference/android/provider/Telephony.Sms.Inbox",
+      "note": "SMS inbox provider fields for manual scan",
+      "bytes": 2201276,
+      "fetched_at": "2026-06-01T15:04:33Z"
+    },
+    {
+      "track": "current-primary",
+      "kind": "official-doc",
+      "title": "Android manifest permissions",
+      "path": "current/android/manifest_permission.html",
+      "url": "https://developer.android.com/reference/android/Manifest.permission",
+      "note": "READ_SMS and RECEIVE_SMS permission reference",
+      "bytes": 2720344,
+      "fetched_at": "2026-06-01T15:04:34Z"
+    },
+    {
+      "track": "current-primary",
+      "kind": "official-doc",
+      "title": "Android default handlers",
+      "path": "current/android/default_handlers.html",
+      "url": "https://developer.android.com/guide/topics/permissions/default-handlers",
+      "note": "Sensitive permission behavior",
+      "bytes": 274289,
+      "fetched_at": "2026-06-01T15:04:35Z"
+    },
+    {
+      "track": "current-primary",
+      "kind": "official-policy",
+      "title": "Google Play SMS policy",
+      "path": "current/android/play_sms_policy.html",
+      "url": "https://support.google.com/googleplay/android-developer/answer/10208820?hl=en",
+      "note": "SMS permission distribution policy; project uses private APK",
+      "bytes": 1425486,
+      "fetched_at": "2026-06-01T15:04:37Z"
+    },
+    {
+      "track": "current-primary",
+      "kind": "official-doc",
+      "title": "FFmpeg CLI documentation",
+      "path": "current/media/ffmpeg.html",
+      "url": "https://ffmpeg.org/ffmpeg.html",
+      "note": "Image compression command behavior",
+      "bytes": 193162,
+      "fetched_at": "2026-06-01T15:04:38Z"
+    },
+    {
+      "track": "current-primary",
+      "kind": "official-doc",
+      "title": "FFmpeg filters documentation",
+      "path": "current/media/ffmpeg_filters.html",
+      "url": "https://ffmpeg.org/ffmpeg-filters.html",
+      "note": "scale filter for image resizing",
+      "bytes": 1411581,
+      "fetched_at": "2026-06-01T15:04:40Z"
+    },
+    {
+      "track": "current-primary",
+      "kind": "official-doc",
+      "title": "Playwright intro",
+      "path": "current/testing/playwright_intro.html",
+      "url": "https://playwright.dev/docs/intro",
+      "note": "Web closed-loop browser testing",
+      "bytes": 51369,
+      "fetched_at": "2026-06-01T15:04:40Z"
+    },
+    {
+      "track": "current-primary",
+      "kind": "official-doc",
+      "title": "Playwright assertions",
+      "path": "current/testing/playwright_test_assertions.html",
+      "url": "https://playwright.dev/docs/test-assertions",
+      "note": "Browser acceptance assertions",
+      "bytes": 151255,
+      "fetched_at": "2026-06-01T15:04:41Z"
+    }
+  ]
+}

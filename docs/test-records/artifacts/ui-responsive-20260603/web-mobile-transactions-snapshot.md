@@ -1,0 +1,28 @@
+- generic [ref=e5] [box=0,0,390,844]:
+  - generic [box=0,0,0,0]:
+    - generic [box=0,0,390,844]:
+      - generic [box=0,0,390,844]:
+        - generic [box=0,0,390,844]:
+          - generic [box=0,0,390,844]:
+            - generic [box=0,0,390,56]:
+              - heading "交易" [active] [level=2] [ref=e6] [box=16,14,44,28]
+              - button "刷新" [ref=e7] [box=350,8,40,40]
+            - generic [box=0,56,390,708]:
+              - group [box=0,56,390,708]:
+                - generic [box=16,72,358,480]:
+                  - generic [box=16,72,358,306]:
+                    - button "方向 支出" [ref=e8] [box=28,84,334,40]
+                    - button "分类 全部" [ref=e9] [box=28,132,334,40]
+                    - button "使用人 全部" [ref=e10] [box=28,180,334,40]
+                    - button "账户 全部" [ref=e11] [box=28,228,334,40]
+                    - button "起始日期" [ref=e12] [box=28,282,143,32]
+                    - button "结束日期" [ref=e13] [box=179,282,143,32]
+                    - button "清除日期" [disabled] [ref=e14] [box=322,278,40,40]
+                    - generic [ref=e15] [box=28,326,334,40]
+                  - button "SMS Coffee API 2025-06-04 15:26 · 餐饮 · 本人 · 现金 ¥43.21" [ref=e18] [box=16,390,358,73]
+                  - button "Responsive Coffee Edited 2025-06-01 18:00 · 餐饮 · 本人 · 现金 ¥234.56" [ref=e19] [box=16,471,358,73]
+            - button "新增" [ref=e20] [box=278,692,96,56]
+            - tablist [box=0,764,390,80]:
+              - tab "交易" [selected] [ref=e21] [box=0,764,130,80]
+              - tab "统计" [ref=e22] [box=130,764,130,80]
+              - tab "设置" [ref=e23] [box=260,764,130,80]

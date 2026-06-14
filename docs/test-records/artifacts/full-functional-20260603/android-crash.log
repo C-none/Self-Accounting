@@ -1,0 +1,96 @@
+--------- beginning of crash
+06-03 14:30:48.243  1034  1226 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 1226 (bt_stack_manage), pid 1034 (droid.bluetooth)
+06-03 14:30:48.731 10484 10484 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+06-03 14:30:48.731 10484 10484 F DEBUG   : Build fingerprint: 'google/sdk_gphone64_x86_64/emu64xa:16/BE2A.250530.026.D1/13818094:user/release-keys'
+06-03 14:30:48.731 10484 10484 F DEBUG   : Revision: '0'
+06-03 14:30:48.731 10484 10484 F DEBUG   : ABI: 'x86_64'
+06-03 14:30:48.731 10484 10484 F DEBUG   : Timestamp: 2026-06-03 14:30:48.345343700+0000
+06-03 14:30:48.731 10484 10484 F DEBUG   : Process uptime: 0s
+06-03 14:30:48.731 10484 10484 F DEBUG   : Cmdline: com.google.android.bluetooth
+06-03 14:30:48.731 10484 10484 F DEBUG   : pid: 1034, tid: 1226, name: bt_stack_manage  >>> com.google.android.bluetooth <<<
+06-03 14:30:48.731 10484 10484 F DEBUG   : uid: 1002
+06-03 14:30:48.731 10484 10484 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+06-03 14:30:48.731 10484 10484 F DEBUG   : Abort message: 'system/gd/hci/hci_layer.cc:527 on_hardware_error: Hardware Error Event with code 0x42'
+06-03 14:30:48.731 10484 10484 F DEBUG   :     rax 0000000000000000  rbx 000000000000040a  rcx 00007ab8ce26f424  rdx 0000000000000006
+06-03 14:30:48.731 10484 10484 F DEBUG   :     r8  00007ab592558560  r9  00007ab592558560  r10 00007ab592558520  r11 0000000000000203
+06-03 14:30:48.731 10484 10484 F DEBUG   :     r12 00007ab6f8b390d0  r13 00007ab592aeb2b6  r14 00000000000004ca  r15 00007ab626809b98
+06-03 14:30:48.731 10484 10484 F DEBUG   :     rdi 000000000000040a  rsi 00000000000004ca
+06-03 14:30:48.731 10484 10484 F DEBUG   :     rbp 00007ab5925585c0  rsp 00007ab592558520  rip 00007ab8ce26f424
+06-03 14:30:48.731 10484 10484 F DEBUG   : 14 total frames
+06-03 14:30:48.731 10484 10484 F DEBUG   : backtrace:
+06-03 14:30:48.731 10484 10484 F DEBUG   :       #00 pc 000000000006a424  /apex/com.android.runtime/lib64/bionic/libc.so (abort+196) (BuildId: fcb82240218d1473de1e3d2137c0be35)
+06-03 14:30:48.731 10484 10484 F DEBUG   :       #01 pc 00000000008a60ce  /apex/com.android.art/lib64/libart.so (art::Runtime::Abort(char const*)+1614) (BuildId: 108a321dc93c20580e74b855c407e975)
+06-03 14:30:48.731 10484 10484 F DEBUG   :       #02 pc 000000000001644e  /apex/com.android.art/lib64/libbase.so (android::base::SetAborter(std::__1::function<void (char const*)>&&)::$_0::__invoke(char const*)+62) (BuildId: c4bb892a3d26e3710ae5096df0da1dee)
+06-03 14:30:48.731 10484 10484 F DEBUG   :       #03 pc 0000000000dce65d  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::log_internal::vlog(bluetooth::log_internal::Level, char const*, bluetooth::log_internal::source_location, std::__1::basic_string_view<char, std::__1::char_traits<char>>, std::__1::basic_format_args<std::__1::basic_format_context<std::__1::back_insert_iterator<std::__1::__format::__output_buffer<char>>, char>>)+1485) (BuildId: c16243ef3721433bd1d6ea11c9300cf2)
+06-03 14:30:48.731 10484 10484 F DEBUG   :       #04 pc 0000000000b39106  /apex/com.android.bt/lib64/libbluetooth_jni.so (void bluetooth::log::fatal<unsigned char>(std::__1::basic_format_string<char, std::__1::type_identity<unsigned char>::type>, unsigned char&&, bluetooth::log_internal::source_location)+118) (BuildId: c16243ef3721433bd1d6ea11c9300cf2)
+06-03 14:30:48.731 10484 10484 F DEBUG   :       #05 pc 0000000000b3508a  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::hci::HciLayer::impl::on_hci_event(bluetooth::hci::EventView)+26202) (BuildId: c16243ef3721433bd1d6ea11c9300cf2)
+06-03 14:30:48.731 10484 10484 F DEBUG   :       #06 pc 0000000000b3535e  /apex/com.android.bt/lib64/libbluetooth_jni.so (void base::internal::FunctorTraits<void (bluetooth::hci::HciLayer::impl::*)(bluetooth::hci::EventView), void>::Invoke<void (bluetooth::hci::HciLayer::impl::*)(bluetooth::hci::EventView), bluetooth::hci::HciLayer::impl*, bluetooth::hci::EventView>(void (bluetooth::hci::HciLayer::impl::*)(bluetooth::hci::EventView), bluetooth::hci::HciLayer::impl*&&, bluetooth::hci::EventView&&)+302) (BuildId: c16243ef3721433bd1d6ea11c9300cf2)
+06-03 14:30:48.731 10484 10484 F DEBUG   :       #07 pc 0000000000b35214  /apex/com.android.bt/lib64/libbluetooth_jni.so (base::internal::Invoker<base::internal::BindState<void (bluetooth::hci::HciLayer::impl::*)(bluetooth::hci::EventView), base::internal::UnretainedWrapper<bluetooth::hci::HciLayer::impl>, bluetooth::hci::EventView>, void ()>::RunOnce(base::internal::BindStateBase*)+52) (BuildId: c16243ef3721433bd1d6ea11c9300cf2)
+06-03 14:30:48.731 10484 10484 F DEBUG   :       #08 pc 0000000000c2c225  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Handler::handle_next_event()+341) (BuildId: c16243ef3721433bd1d6ea11c9300cf2)
+06-03 14:30:48.731 10484 10484 F DEBUG   :       #09 pc 0000000000c3e54b  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Reactor::Run()+1051) (BuildId: c16243ef3721433bd1d6ea11c9300cf2)
+06-03 14:30:48.731 10484 10484 F DEBUG   :       #10 pc 0000000000c3f7f8  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Thread::run(bluetooth::os::Thread::Priority)+296) (BuildId: c16243ef3721433bd1d6ea11c9300cf2)
+06-03 14:30:48.731 10484 10484 F DEBUG   :       #11 pc 0000000000c3f99c  /apex/com.android.bt/lib64/libbluetooth_jni.so (void* std::__1::__thread_proxy[abi:nn200000]<std::__1::tuple<std::__1::unique_ptr<std::__1::__thread_struct, std::__1::default_delete<std::__1::__thread_struct>>, void (bluetooth::os::Thread::*)(bluetooth::os::Thread::Priority), bluetooth::os::Thread*, bluetooth::os::Thread::Priority>>(void*)+60) (BuildId: c16243ef3721433bd1d6ea11c9300cf2)
+06-03 14:30:48.731 10484 10484 F DEBUG   :       #12 pc 000000000007ac5f  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*)+63) (BuildId: fcb82240218d1473de1e3d2137c0be35)
+06-03 14:30:48.731 10484 10484 F DEBUG   :       #13 pc 000000000006d94d  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+61) (BuildId: fcb82240218d1473de1e3d2137c0be35)
+06-03 14:37:18.479 10315 10315 E AndroidRuntime: FATAL EXCEPTION: main
+06-03 14:37:18.479 10315 10315 E AndroidRuntime: Process: com.example.ledger_client, PID: 10315
+06-03 14:37:18.479 10315 10315 E AndroidRuntime: java.lang.RuntimeException: Unable to start receiver com.example.ledger_client.SmsReceiver: java.lang.SecurityException: ConnectivityService: Neither user 10219 nor current process has android.permission.ACCESS_NETWORK_STATE.
+06-03 14:37:18.479 10315 10315 E AndroidRuntime: 	at android.app.ActivityThread.handleReceiver(ActivityThread.java:5038)
+06-03 14:37:18.479 10315 10315 E AndroidRuntime: 	at android.app.ActivityThread.-$$Nest$mhandleReceiver(Unknown Source:0)
+06-03 14:37:18.479 10315 10315 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2577)
+06-03 14:37:18.479 10315 10315 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:110)
+06-03 14:37:18.479 10315 10315 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:248)
+06-03 14:37:18.479 10315 10315 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:338)
+06-03 14:37:18.479 10315 10315 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:9067)
+06-03 14:37:18.479 10315 10315 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+06-03 14:37:18.479 10315 10315 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:593)
+06-03 14:37:18.479 10315 10315 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:932)
+06-03 14:37:18.479 10315 10315 E AndroidRuntime: Caused by: java.lang.SecurityException: ConnectivityService: Neither user 10219 nor current process has android.permission.ACCESS_NETWORK_STATE.
+06-03 14:37:18.479 10315 10315 E AndroidRuntime: 	at android.os.Parcel.createExceptionOrNull(Parcel.java:3340)
+06-03 14:37:18.479 10315 10315 E AndroidRuntime: 	at android.os.Parcel.createException(Parcel.java:3324)
+06-03 14:37:18.479 10315 10315 E AndroidRuntime: 	at android.os.Parcel.readException(Parcel.java:3307)
+06-03 14:37:18.479 10315 10315 E AndroidRuntime: 	at android.os.Parcel.readException(Parcel.java:3249)
+06-03 14:37:18.479 10315 10315 E AndroidRuntime: 	at android.net.IConnectivityManager$Stub$Proxy.getActiveNetwork(IConnectivityManager.java:1738)
+06-03 14:37:18.479 10315 10315 E AndroidRuntime: 	at android.net.ConnectivityManager.getActiveNetwork(ConnectivityManager.java:1543)
+06-03 14:37:18.479 10315 10315 E AndroidRuntime: 	at com.example.ledger_client.SmsBridge.isNetworkAvailable(SmsReceiver.kt:57)
+06-03 14:37:18.479 10315 10315 E AndroidRuntime: 	at com.example.ledger_client.SmsReceiver.onReceive(SmsReceiver.kt:17)
+06-03 14:37:18.479 10315 10315 E AndroidRuntime: 	at android.app.ActivityThread.handleReceiver(ActivityThread.java:5029)
+06-03 14:37:18.479 10315 10315 E AndroidRuntime: 	... 9 more
+06-03 14:37:18.479 10315 10315 E AndroidRuntime: Caused by: android.os.RemoteException: Remote stack trace:
+06-03 14:37:18.479 10315 10315 E AndroidRuntime: 	at android.app.ContextImpl.enforce(ContextImpl.java:2437)
+06-03 14:37:18.479 10315 10315 E AndroidRuntime: 	at android.app.ContextImpl.enforceCallingOrSelfPermission(ContextImpl.java:2465)
+06-03 14:37:18.479 10315 10315 E AndroidRuntime: 	at android.net.connectivity.com.android.server.ConnectivityService.enforceAccessPermission(ConnectivityService.java:3809)
+06-03 14:37:18.479 10315 10315 E AndroidRuntime: 	at android.net.connectivity.com.android.server.ConnectivityService.getActiveNetwork(ConnectivityService.java:2497)
+06-03 14:37:18.479 10315 10315 E AndroidRuntime: 	at android.net.IConnectivityManager$Stub.onTransact(IConnectivityManager.java:786)
+06-03 14:37:18.479 10315 10315 E AndroidRuntime: 
+06-03 14:39:10.929 11855 11855 E AndroidRuntime: FATAL EXCEPTION: main
+06-03 14:39:10.929 11855 11855 E AndroidRuntime: Process: com.example.ledger_client, PID: 11855
+06-03 14:39:10.929 11855 11855 E AndroidRuntime: java.lang.RuntimeException: Unable to start receiver com.example.ledger_client.SmsReceiver: java.lang.SecurityException: ConnectivityService: Neither user 10219 nor current process has android.permission.ACCESS_NETWORK_STATE.
+06-03 14:39:10.929 11855 11855 E AndroidRuntime: 	at android.app.ActivityThread.handleReceiver(ActivityThread.java:5038)
+06-03 14:39:10.929 11855 11855 E AndroidRuntime: 	at android.app.ActivityThread.-$$Nest$mhandleReceiver(Unknown Source:0)
+06-03 14:39:10.929 11855 11855 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2577)
+06-03 14:39:10.929 11855 11855 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:110)
+06-03 14:39:10.929 11855 11855 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:248)
+06-03 14:39:10.929 11855 11855 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:338)
+06-03 14:39:10.929 11855 11855 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:9067)
+06-03 14:39:10.929 11855 11855 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+06-03 14:39:10.929 11855 11855 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:593)
+06-03 14:39:10.929 11855 11855 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:932)
+06-03 14:39:10.929 11855 11855 E AndroidRuntime: Caused by: java.lang.SecurityException: ConnectivityService: Neither user 10219 nor current process has android.permission.ACCESS_NETWORK_STATE.
+06-03 14:39:10.929 11855 11855 E AndroidRuntime: 	at android.os.Parcel.createExceptionOrNull(Parcel.java:3340)
+06-03 14:39:10.929 11855 11855 E AndroidRuntime: 	at android.os.Parcel.createException(Parcel.java:3324)
+06-03 14:39:10.929 11855 11855 E AndroidRuntime: 	at android.os.Parcel.readException(Parcel.java:3307)
+06-03 14:39:10.929 11855 11855 E AndroidRuntime: 	at android.os.Parcel.readException(Parcel.java:3249)
+06-03 14:39:10.929 11855 11855 E AndroidRuntime: 	at android.net.IConnectivityManager$Stub$Proxy.getActiveNetwork(IConnectivityManager.java:1738)
+06-03 14:39:10.929 11855 11855 E AndroidRuntime: 	at android.net.ConnectivityManager.getActiveNetwork(ConnectivityManager.java:1543)
+06-03 14:39:10.929 11855 11855 E AndroidRuntime: 	at com.example.ledger_client.SmsBridge.isNetworkAvailable(SmsReceiver.kt:57)
+06-03 14:39:10.929 11855 11855 E AndroidRuntime: 	at com.example.ledger_client.SmsReceiver.onReceive(SmsReceiver.kt:17)
+06-03 14:39:10.929 11855 11855 E AndroidRuntime: 	at android.app.ActivityThread.handleReceiver(ActivityThread.java:5029)
+06-03 14:39:10.929 11855 11855 E AndroidRuntime: 	... 9 more
+06-03 14:39:10.929 11855 11855 E AndroidRuntime: Caused by: android.os.RemoteException: Remote stack trace:
+06-03 14:39:10.929 11855 11855 E AndroidRuntime: 	at android.app.ContextImpl.enforce(ContextImpl.java:2437)
+06-03 14:39:10.929 11855 11855 E AndroidRuntime: 	at android.app.ContextImpl.enforceCallingOrSelfPermission(ContextImpl.java:2465)
+06-03 14:39:10.929 11855 11855 E AndroidRuntime: 	at android.net.connectivity.com.android.server.ConnectivityService.enforceAccessPermission(ConnectivityService.java:3809)
+06-03 14:39:10.929 11855 11855 E AndroidRuntime: 	at android.net.connectivity.com.android.server.ConnectivityService.getActiveNetwork(ConnectivityService.java:2497)
+06-03 14:39:10.929 11855 11855 E AndroidRuntime: 	at android.net.IConnectivityManager$Stub.onTransact(IConnectivityManager.java:786)
+06-03 14:39:10.929 11855 11855 E AndroidRuntime: 

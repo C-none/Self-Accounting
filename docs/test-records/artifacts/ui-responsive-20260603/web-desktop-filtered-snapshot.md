@@ -1,0 +1,27 @@
+- generic [ref=e5] [cursor=pointer] [box=0,0,1600,900]:
+  - generic [box=0,0,0,0]:
+    - generic [box=0,0,1600,900]:
+      - generic [box=0,0,1600,900]:
+        - generic [box=0,0,1600,900]:
+          - generic [box=0,0,1600,900]:
+            - generic [box=0,0,184,900]:
+              - button "交易 Tab 1 of 3" [ref=e55] [box=0,28,184,44]
+              - button "统计 Tab 2 of 3" [ref=e56] [box=0,72,184,44]
+              - button "设置 Tab 3 of 3" [ref=e57] [box=0,116,184,44]
+            - generic [box=185,0,1415,56]:
+              - heading "交易" [level=2] [ref=e58] [box=201,14,44,28]
+              - button "刷新" [ref=e59] [box=1560,8,40,40]
+            - generic [box=185,56,1415,844]:
+              - group [box=185,56,1415,844]:
+                - generic [box=225,80,1335,255]:
+                  - generic [box=313,80,1160,162]:
+                    - button "方向 支出" [ref=e60] [box=325,92,277,40]
+                    - button "分类 全部" [ref=e61] [box=611,92,277,40]
+                    - button "使用人 全部" [ref=e62] [box=898,92,277,40]
+                    - button "账户 全部" [ref=e63] [box=1184,92,277,40]
+                    - button "起始日期" [ref=e64] [box=325,146,544,32]
+                    - button "结束日期" [ref=e65] [box=877,146,544,32]
+                    - button "清除日期" [disabled] [ref=e66] [box=1421,142,40,40]
+                    - generic [ref=e67] [box=325,190,1136,40]
+                  - button "Web UI Responsive Shop 2026-06-04 19:52 · 餐饮 · 本人 · 现金 ¥88.88" [ref=e76] [box=313,254,1160,73]
+            - button "新增" [ref=e73] [box=1488,828,96,56]

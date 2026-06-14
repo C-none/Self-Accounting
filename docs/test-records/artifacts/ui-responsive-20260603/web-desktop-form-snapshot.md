@@ -1,0 +1,24 @@
+- generic [ref=e5] [box=0,0,1600,900]:
+  - generic [box=0,0,0,0]:
+    - generic [box=0,0,1600,900]:
+      - generic [box=0,0,1600,900]:
+        - generic [box=0,0,1600,900]:
+          - generic [box=0,0,1600,900]:
+            - generic [box=0,0,1600,56]:
+              - button "Back" [active] [ref=e39] [box=8,8,40,40]
+              - heading "新增交易" [level=2] [ref=e40] [box=72,14,88,28]
+            - generic [box=0,56,1600,844]:
+              - generic [box=0,56,1600,844]:
+                - group [box=0,56,1600,844]:
+                  - group "照片 暂无照片" [box=40,80,1520,500]:
+                    - textbox "金额 RMB" [ref=e42] [box=370,80,432,46]
+                    - button "方向 支出" [ref=e43] [box=806,80,424,40]
+                    - button "一级分类 餐饮" [ref=e44] [box=370,132,424,40]
+                    - button "二级分类 不选择" [ref=e45] [box=806,132,424,40]
+                    - button "使用人 本人" [ref=e46] [box=370,184,424,40]
+                    - button "账户 现金" [ref=e47] [box=806,184,424,40]
+                    - button "2026-06-04 19:52" [ref=e48] [box=370,236,860,32]
+                    - textbox "交易对象" [ref=e50] [box=370,280,868,46]
+                    - textbox "详细描述" [ref=e52] [box=370,332,865,93]
+                    - button "选择图片" [ref=e53] [box=370,468,122,32]
+                    - button "新增交易" [ref=e54] [box=370,548,860,32]

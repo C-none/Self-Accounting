@@ -1,0 +1,29 @@
+- generic [active] [ref=e5] [cursor=pointer] [box=0,0,1037,906]:
+  - generic [box=0,0,0,0]:
+    - generic [box=0,0,1037,906]:
+      - generic [box=0,0,1037,906]:
+        - generic [box=0,0,1037,906]:
+          - generic [box=0,0,1037,906]:
+            - generic [box=0,0,1037,56]:
+              - heading "交易" [level=2] [ref=e22] [box=16,14,44,28]
+              - button "刷新" [ref=e23] [box=997,8,40,40]
+            - generic [box=0,56,1037,770]:
+              - group [box=0,56,1037,770]:
+                - generic [box=12,68,1013,160]:
+                  - generic [box=12,68,1013,160]:
+                    - button "方向 支出" [ref=e24] [box=24,80,239,40]
+                    - button "分类 全部" [ref=e25] [box=271,80,239,40]
+                    - button "使用人 全部" [ref=e26] [box=519,80,239,40]
+                    - button "账户 全部" [ref=e27] [box=766,80,239,40]
+                    - button "起始日期" [ref=e28] [box=24,132,471,32]
+                    - button "结束日期" [ref=e29] [box=503,132,471,32]
+                    - button "清除日期" [disabled] [ref=e30] [box=973,128,40,40]
+                    - generic [ref=e31] [box=24,176,989,40]:
+                      - textbox "关键词" [ref=e32] [box=24,176,997,46]
+                      - button "搜索" [ref=e33] [box=973,176,40,40]
+                - button "超市 2026-06-03 23:07 · 其他支出 · 本人 · 现金 ¥77.77" [ref=e35] [box=12,240,1013,72]
+            - button "新增" [ref=e36] [box=925,754,96,56]
+            - tablist [box=0,826,1037,80]:
+              - tab "交易" [selected] [ref=e37] [box=0,826,346,80]
+              - tab "统计" [ref=e38] [box=346,826,346,80]
+              - tab "设置" [ref=e39] [box=692,826,346,80]
