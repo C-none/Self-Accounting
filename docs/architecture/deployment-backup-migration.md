@@ -15,7 +15,10 @@ Flutter Web 生产产物嵌入 Go 二进制或作为同目录静态资源由 Go 
 
 Ubuntu release 包应包含 `scripts/ubuntu/` 下的固定运维脚本：
 
-- `install.sh`：从发布包安装 `ledger-server`、`web/`、运维脚本和可选 APK 到目标目录。
+- `install.sh`：兼容入口，等同于 `install-release.sh`。
+- `install-release.sh`：从发布包根目录或 `dist/release/` 安装 `ledger-server`、`web/`、运维脚本和可选 APK 到目标目录。
+- `install-dev.sh`：从 dev 构建路径安装，默认读取 `dist/dev/ubuntu-amd64/ledger-server` 和 `client/build/web`，仅用于有构建环境的开发机或临时测试机。
+- `install-common.sh`：安装公共实现，被 dev/release 安装脚本调用，不作为用户直接入口。
 - `start.sh`：用 `nohup` 启动服务，写入 `run/ledger-server.pid` 和 `logs/ledger-server.log`。
 - `stop.sh`：按 pid 文件停止服务。
 - `db-export.sh`：停服后导出 `app.db`、`photos/`、`thumbnails/`、`config.json` 和 `server-secret.key` 到 `exports/ledger-db-export-*.tar.gz`。
@@ -36,6 +39,8 @@ LEDGER_LISTEN_ADDR=0.0.0.0:8080
 LEDGER_PUBLIC_BASE_URL=https://ledger.example.com
 LEDGER_REQUIRE_HTTPS=true
 ```
+
+dev 安装默认安装到 `/opt/ledger-node-dev`，可通过相同的 `LEDGER_APP_DIR` 覆盖；release 安装默认安装到 `/opt/ledger-node`。dev 产物路径属于本地构建输出，应继续被 git 忽略；release 产物放在 `dist/release/`，需要随仓库发布。
 
 脚本不依赖 Docker、Nginx 或 systemd。生产公网 HTTPS 可由云厂商负载均衡或外部反向代理提供，但本系统本地运行不强制依赖它们。
 

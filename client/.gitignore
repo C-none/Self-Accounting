@@ -24,6 +24,7 @@ migrate_working_dir/
 #.vscode/
 
 # Flutter/Dart/Pub related
+# client/build is a dev/local output. Track release Web artifacts under ../dist/release/web.
 **/doc/api/
 **/ios/Flutter/.last_build_id
 .dart_tool/

@@ -297,6 +297,17 @@ flutter build apk --release --dart-define=LEDGER_API_BASE=https://your-domain.ex
 }
 ```
 
+Ubuntu 发布包或已提交的 `dist/release/` 产物安装时使用 release 安装入口：
+
+```bash
+LEDGER_PUBLIC_BASE_URL=https://your-domain.example \
+LEDGER_REQUIRE_HTTPS=true \
+LEDGER_LISTEN_ADDR=0.0.0.0:8080 \
+bash scripts/ubuntu/install-release.sh
+```
+
+兼容入口 `scripts/ubuntu/install.sh` 等同于 `install-release.sh`。开发机临时安装才使用 `install-dev.sh`，它默认读取 `dist/dev/ubuntu-amd64/ledger-server` 和 `client/build/web`，这些 dev 构建产物继续被 git 忽略。
+
 ## 9. 关键配置说明
 
 默认开发配置文件：

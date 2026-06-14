@@ -15,15 +15,18 @@ config.visual-test.json
 *.swp
 *.swo
 
-# Release/build outputs
+# Dev/local build outputs
 build/
+client/build/
+dist/*
+!dist/release/
+!dist/release/**
 
 # Flutter/Dart
 client/.dart_tool/
 client/.flutter-plugins
 client/.flutter-plugins-dependencies
 client/.packages
-client/build/
 client/.pub-cache/
 client/coverage/
 
