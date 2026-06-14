@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ledger_client/src/api_client.dart';
 import 'package:ledger_client/src/models.dart';
 import 'package:ledger_client/src/pages/sms_import_page.dart';
 import 'package:ledger_client/src/pages/stats_page.dart';
@@ -8,6 +9,28 @@ import 'package:ledger_client/src/sms/sms_platform.dart';
 import 'package:ledger_client/src/sms/sms_templates.dart';
 
 void main() {
+  test('keeps HTTPS service URL when editing saved endpoint', () {
+    final api = ApiClient(baseUrl: 'https://neeewbieee.duckdns.org:443');
+    expect(api.displayHost, 'https://neeewbieee.duckdns.org');
+    expect(api.displayPort, '443');
+
+    final rebuilt = ApiClient.buildServiceBaseUrl(
+      host: api.displayHost,
+      port: api.displayPort,
+    );
+    expect(rebuilt, 'https://neeewbieee.duckdns.org');
+  });
+
+  test('infers HTTPS for service endpoint on port 443', () {
+    expect(
+      ApiClient.buildServiceBaseUrl(
+        host: 'neeewbieee.duckdns.org',
+        port: '443',
+      ),
+      'https://neeewbieee.duckdns.org',
+    );
+  });
+
   test('parses RMB input to integer cents', () {
     expect(parseAmountCent('12.34'), 1234);
     expect(parseAmountCent('12'), 1200);

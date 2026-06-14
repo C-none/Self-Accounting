@@ -47,7 +47,14 @@ class ApiClient {
     if (_baseUrl.isEmpty) {
       return '';
     }
-    return Uri.tryParse(_baseUrl)?.host ?? '';
+    final uri = Uri.tryParse(_baseUrl);
+    if (uri == null || uri.host.isEmpty) {
+      return '';
+    }
+    if (uri.scheme == 'https') {
+      return 'https://${uri.host}';
+    }
+    return uri.host;
   }
 
   String get displayPort {
@@ -100,7 +107,8 @@ class ApiClient {
             .toString(),
       );
     }
-    return normalizeServiceBaseUrl('$cleanHost:$parsedPort');
+    final inferredScheme = parsedPort == 443 ? 'https' : 'http';
+    return normalizeServiceBaseUrl('$inferredScheme://$cleanHost:$parsedPort');
   }
 
   Uri _uri(String path, [Map<String, String?> query = const {}]) {

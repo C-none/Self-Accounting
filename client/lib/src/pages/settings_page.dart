@@ -91,7 +91,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           autofocus: true,
                           decoration: const InputDecoration(
                             labelText: '服务 IP/主机',
-                            hintText: '如 10.0.2.2 或 192.168.1.10',
+                            hintText: '如 https://example.com 或 10.0.2.2',
                           ),
                           textInputAction: TextInputAction.next,
                         ),
