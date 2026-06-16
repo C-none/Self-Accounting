@@ -70,15 +70,18 @@ hash 与随机值规则：
   - 管理一级和二级分类。
   - 分类方向只允许 `income`、`expense`、`transfer`。
   - 删除为软删除；已有交易引用的分类不能删除，避免历史交易丢失显示名称。
+  - `POST /api/categories/reorder` 按方向和父级调整同一作用域内分类显示顺序；请求包含 `type`、`parent_id` 和完整 `ordered_ids`，服务端校验无重复、无缺失后写入 `sort_order`。
 
 - `POST /api/members` / `PATCH /api/members/{id}` / `DELETE /api/members/{id}`
   - 管理使用人。
   - 删除为软删除；已有交易引用的使用人不能删除。
+  - `POST /api/members/reorder` 按完整 `ordered_ids` 调整使用人显示顺序。
 
 - `POST /api/accounts` / `PATCH /api/accounts/{id}` / `DELETE /api/accounts/{id}`
   - 管理账户。
   - 账户标识必须由客户端传入脱敏值，服务端不得记录完整敏感账户标识。
   - 删除为软删除；已有交易引用的账户不能删除。
+  - `POST /api/accounts/reorder` 按完整 `ordered_ids` 调整账户显示顺序。
 
 ### Transactions
 

@@ -253,6 +253,20 @@ class ApiClient {
     await _json('DELETE', '/api/categories/$id', token: token);
   }
 
+  Future<void> reorderCategories(
+    String token, {
+    required String type,
+    required String? parentId,
+    required List<String> orderedIds,
+  }) async {
+    await _json(
+      'POST',
+      '/api/categories/reorder',
+      token: token,
+      body: {'type': type, 'parent_id': parentId, 'ordered_ids': orderedIds},
+    );
+  }
+
   Future<Member> createMember(String token, Map<String, dynamic> body) async {
     final json = await _json('POST', '/api/members', token: token, body: body);
     return Member.fromJson(json);
@@ -274,6 +288,15 @@ class ApiClient {
 
   Future<void> deleteMember(String token, String id) async {
     await _json('DELETE', '/api/members/$id', token: token);
+  }
+
+  Future<void> reorderMembers(String token, List<String> orderedIds) async {
+    await _json(
+      'POST',
+      '/api/members/reorder',
+      token: token,
+      body: {'ordered_ids': orderedIds},
+    );
   }
 
   Future<LedgerAccount> createAccount(
@@ -300,6 +323,15 @@ class ApiClient {
 
   Future<void> deleteAccount(String token, String id) async {
     await _json('DELETE', '/api/accounts/$id', token: token);
+  }
+
+  Future<void> reorderAccounts(String token, List<String> orderedIds) async {
+    await _json(
+      'POST',
+      '/api/accounts/reorder',
+      token: token,
+      body: {'ordered_ids': orderedIds},
+    );
   }
 
   Future<TransactionPage> listTransactions(

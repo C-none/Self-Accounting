@@ -82,13 +82,18 @@ class Category {
 }
 
 class Member {
-  Member({required this.id, required this.name});
+  Member({required this.id, required this.name, this.sortOrder = 0});
 
   final String id;
   final String name;
+  final int sortOrder;
 
   factory Member.fromJson(Map<String, dynamic> json) {
-    return Member(id: json['id'] as String, name: json['name'] as String);
+    return Member(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      sortOrder: json['sort_order'] as int? ?? 0,
+    );
   }
 }
 
@@ -98,12 +103,14 @@ class LedgerAccount {
     required this.name,
     required this.type,
     required this.maskedIdentifier,
+    this.sortOrder = 0,
   });
 
   final String id;
   final String name;
   final String type;
   final String maskedIdentifier;
+  final int sortOrder;
 
   String get cardTail => normalizeCardTail(maskedIdentifier);
 
@@ -118,6 +125,7 @@ class LedgerAccount {
       name: json['name'] as String,
       type: json['type'] as String? ?? '',
       maskedIdentifier: json['masked_identifier'] as String? ?? '',
+      sortOrder: json['sort_order'] as int? ?? 0,
     );
   }
 }
@@ -479,9 +487,40 @@ String formatDateTime(int unixSeconds) {
   return '${d.year}-${two(d.month)}-${two(d.day)} ${two(d.hour)}:${two(d.minute)}';
 }
 
+String formatTimeOnly(int unixSeconds) {
+  final d = DateTime.fromMillisecondsSinceEpoch(unixSeconds * 1000);
+  String two(int v) => v.toString().padLeft(2, '0');
+  return '${two(d.hour)}:${two(d.minute)}';
+}
+
 String formatDateOnly(DateTime date) {
   String two(int v) => v.toString().padLeft(2, '0');
   return '${date.year}-${two(date.month)}-${two(date.day)}';
+}
+
+String categoryDisplayName(
+  List<Category> categories,
+  String categoryL1Id,
+  String categoryL2Id,
+) {
+  final topName = _categoryName(categories, categoryL1Id);
+  if (categoryL2Id.isEmpty) {
+    return topName;
+  }
+  final childName = _categoryName(categories, categoryL2Id);
+  if (childName == categoryL2Id) {
+    return topName;
+  }
+  return '$childName - $topName';
+}
+
+String _categoryName(List<Category> categories, String id) {
+  for (final category in categories) {
+    if (category.id == id) {
+      return category.name;
+    }
+  }
+  return id;
 }
 
 String formatCompactDate(DateTime date) {

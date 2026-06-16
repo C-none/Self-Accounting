@@ -27,6 +27,7 @@ class _StatsPageState extends State<StatsPage> {
   DateTime? toDate;
   List<CategoryStat> categoryStats = [];
   List<TimelineSeries> timelineSeries = [];
+  String? selectedTimelineGroupId;
 
   @override
   void initState() {
@@ -154,6 +155,10 @@ class _StatsPageState extends State<StatsPage> {
                 compareBy: compareBy,
                 categoryStats: categoryStats,
                 timelineSeries: timelineSeries,
+                selectedTimelineGroupId: selectedTimelineGroupId,
+                onSelectedTimelineGroupChanged: (value) {
+                  setState(() => selectedTimelineGroupId = value);
+                },
               ),
             ],
           ],
@@ -238,6 +243,12 @@ class _StatsPageState extends State<StatsPage> {
         setState(() {
           categoryStats = nextCategory;
           timelineSeries = nextTimeline.series;
+          if (selectedTimelineGroupId != null &&
+              !nextTimeline.series.any(
+                (item) => item.groupId == selectedTimelineGroupId,
+              )) {
+            selectedTimelineGroupId = null;
+          }
         });
       }
     } catch (e) {
@@ -455,16 +466,21 @@ class _StatsSections extends StatelessWidget {
     required this.compareBy,
     required this.categoryStats,
     required this.timelineSeries,
+    required this.selectedTimelineGroupId,
+    required this.onSelectedTimelineGroupChanged,
   });
 
   final String bucket;
   final String compareBy;
   final List<CategoryStat> categoryStats;
   final List<TimelineSeries> timelineSeries;
+  final String? selectedTimelineGroupId;
+  final ValueChanged<String?> onSelectedTimelineGroupChanged;
 
   @override
   Widget build(BuildContext context) {
     final compareLabel = _compareByLabel(compareBy);
+    final colorIndexes = _statColorIndexes(categoryStats, timelineSeries);
     final hasTimelineData = timelineSeries.any(
       (item) => item.points.isNotEmpty,
     );
@@ -476,11 +492,21 @@ class _StatsSections extends StatelessWidget {
               children: [
                 SizedBox(
                   height: 220,
-                  child: CategoryPieChart(items: categoryStats),
+                  child: CategoryPieChart(
+                    items: categoryStats,
+                    colorIndexes: colorIndexes,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 for (var i = 0; i < categoryStats.length; i++)
-                  _StatRow(item: categoryStats[i], colorIndex: i),
+                  _StatRow(
+                    item: categoryStats[i],
+                    colorIndex: statColorIndexForGroup(
+                      colorIndexes,
+                      categoryStats[i].groupId,
+                      i,
+                    ),
+                  ),
               ],
             ),
     );
@@ -492,10 +518,19 @@ class _StatsSections extends StatelessWidget {
               children: [
                 SizedBox(
                   height: 240,
-                  child: TimelineLineChart(series: timelineSeries),
+                  child: TimelineLineChart(
+                    series: timelineSeries,
+                    colorIndexes: colorIndexes,
+                    selectedGroupId: selectedTimelineGroupId,
+                  ),
                 ),
                 const SizedBox(height: 12),
-                _SeriesLegend(series: timelineSeries),
+                _SeriesLegend(
+                  series: timelineSeries,
+                  colorIndexes: colorIndexes,
+                  selectedGroupId: selectedTimelineGroupId,
+                  onSelectedGroupChanged: onSelectedTimelineGroupChanged,
+                ),
               ],
             ),
     );
@@ -579,9 +614,17 @@ class _StatRow extends StatelessWidget {
 }
 
 class _SeriesLegend extends StatelessWidget {
-  const _SeriesLegend({required this.series});
+  const _SeriesLegend({
+    required this.series,
+    required this.colorIndexes,
+    required this.selectedGroupId,
+    required this.onSelectedGroupChanged,
+  });
 
   final List<TimelineSeries> series;
+  final Map<String, int> colorIndexes;
+  final String? selectedGroupId;
+  final ValueChanged<String?> onSelectedGroupChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -592,17 +635,60 @@ class _SeriesLegend extends StatelessWidget {
       children: [
         for (var i = 0; i < series.length; i++)
           if (series[i].points.isNotEmpty)
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _LegendSwatch(color: statColorForIndex(scheme, i)),
-                const SizedBox(width: 6),
-                Text(series[i].groupName),
-              ],
+            InkWell(
+              borderRadius: BorderRadius.circular(6),
+              onTap: () => onSelectedGroupChanged(
+                selectedGroupId == series[i].groupId ? null : series[i].groupId,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _LegendSwatch(
+                      color: statColorForIndex(
+                        scheme,
+                        statColorIndexForGroup(
+                          colorIndexes,
+                          series[i].groupId,
+                          i,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      series[i].groupName,
+                      style: selectedGroupId == series[i].groupId
+                          ? const TextStyle(fontWeight: FontWeight.w700)
+                          : null,
+                    ),
+                  ],
+                ),
+              ),
             ),
       ],
     );
   }
+}
+
+Map<String, int> _statColorIndexes(
+  List<CategoryStat> categoryStats,
+  List<TimelineSeries> timelineSeries,
+) {
+  final indexes = <String, int>{};
+  void add(String groupId) {
+    if (groupId.isNotEmpty && !indexes.containsKey(groupId)) {
+      indexes[groupId] = indexes.length;
+    }
+  }
+
+  for (final item in categoryStats) {
+    add(item.groupId);
+  }
+  for (final item in timelineSeries) {
+    add(item.groupId);
+  }
+  return indexes;
 }
 
 class _LegendSwatch extends StatelessWidget {

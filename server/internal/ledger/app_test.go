@@ -389,6 +389,146 @@ func TestTransactionCRUDValidationSoftDeleteAndStats(t *testing.T) {
 	ts.request(t, http.MethodGet, "/api/transactions/"+created.ID, token, nil, http.StatusNotFound, nil)
 }
 
+func TestMasterDataReorderAndAppend(t *testing.T) {
+	ts := newTestServer(t)
+	token, _ := ts.pairDevice(t, "", "web", "web-admin")
+
+	var boot struct {
+		Categories []Category `json:"categories"`
+		Members    []Member   `json:"members"`
+		Accounts   []Account  `json:"accounts"`
+	}
+	ts.request(t, http.MethodGet, "/api/bootstrap", token, nil, http.StatusOK, &boot)
+
+	expenseTopIDs := categoryIDsForTest(boot.Categories, "expense", "")
+	expenseTopIDs = moveIDFirstForTest(expenseTopIDs, "expense_transport")
+	ts.request(t, http.MethodPost, "/api/categories/reorder", token, map[string]any{
+		"type":        "expense",
+		"parent_id":   nil,
+		"ordered_ids": expenseTopIDs,
+	}, http.StatusOK, nil)
+	ts.request(t, http.MethodPost, "/api/categories/reorder", token, map[string]any{
+		"type":        "expense",
+		"parent_id":   nil,
+		"ordered_ids": []string{"expense_transport", "expense_transport"},
+	}, http.StatusBadRequest, nil)
+
+	var reordered struct {
+		Categories []Category `json:"categories"`
+	}
+	ts.request(t, http.MethodGet, "/api/bootstrap", token, nil, http.StatusOK, &reordered)
+	gotExpenseTopIDs := categoryIDsForTest(reordered.Categories, "expense", "")
+	if len(gotExpenseTopIDs) == 0 || gotExpenseTopIDs[0] != "expense_transport" {
+		t.Fatalf("expense top order = %v, want expense_transport first", gotExpenseTopIDs)
+	}
+
+	childIDs := categoryIDsForTest(reordered.Categories, "expense", "expense_food")
+	if len(childIDs) < 2 {
+		t.Fatalf("seed child categories = %v, want at least two", childIDs)
+	}
+	reversedChildIDs := []string{childIDs[1], childIDs[0]}
+	ts.request(t, http.MethodPost, "/api/categories/reorder", token, map[string]any{
+		"type":        "expense",
+		"parent_id":   "expense_food",
+		"ordered_ids": reversedChildIDs,
+	}, http.StatusOK, nil)
+
+	var createdChild Category
+	ts.request(t, http.MethodPost, "/api/categories", token, map[string]any{
+		"name":      "夜宵",
+		"type":      "expense",
+		"parent_id": "expense_food",
+	}, http.StatusCreated, &createdChild)
+	ts.request(t, http.MethodGet, "/api/bootstrap", token, nil, http.StatusOK, &reordered)
+	childIDs = categoryIDsForTest(reordered.Categories, "expense", "expense_food")
+	if childIDs[len(childIDs)-1] != createdChild.ID {
+		t.Fatalf("child order after append = %v, want new category last", childIDs)
+	}
+
+	var family Member
+	ts.request(t, http.MethodPost, "/api/members", token, map[string]any{
+		"name": "家人",
+	}, http.StatusCreated, &family)
+	ts.request(t, http.MethodPost, "/api/members/reorder", token, map[string]any{
+		"ordered_ids": []string{family.ID, "member_self"},
+	}, http.StatusOK, nil)
+	var child Member
+	ts.request(t, http.MethodPost, "/api/members", token, map[string]any{
+		"name": "孩子",
+	}, http.StatusCreated, &child)
+	var memberBoot struct {
+		Members []Member `json:"members"`
+	}
+	ts.request(t, http.MethodGet, "/api/bootstrap", token, nil, http.StatusOK, &memberBoot)
+	memberIDs := memberIDsForTest(memberBoot.Members)
+	if len(memberIDs) != 3 || memberIDs[0] != family.ID || memberIDs[2] != child.ID {
+		t.Fatalf("member order = %v, want reordered family first and new child last", memberIDs)
+	}
+
+	var bank Account
+	ts.request(t, http.MethodPost, "/api/accounts", token, map[string]any{
+		"name":              "工商银行",
+		"type":              "bank",
+		"masked_identifier": "0973",
+	}, http.StatusCreated, &bank)
+	ts.request(t, http.MethodPost, "/api/accounts/reorder", token, map[string]any{
+		"ordered_ids": []string{bank.ID, "account_cash"},
+	}, http.StatusOK, nil)
+	ts.request(t, http.MethodPost, "/api/accounts/reorder", token, map[string]any{
+		"ordered_ids": []string{bank.ID},
+	}, http.StatusBadRequest, nil)
+	var wallet Account
+	ts.request(t, http.MethodPost, "/api/accounts", token, map[string]any{
+		"name":              "招商银行",
+		"type":              "bank",
+		"masked_identifier": "1234",
+	}, http.StatusCreated, &wallet)
+	var accountBoot struct {
+		Accounts []Account `json:"accounts"`
+	}
+	ts.request(t, http.MethodGet, "/api/bootstrap", token, nil, http.StatusOK, &accountBoot)
+	accountIDs := accountIDsForTest(accountBoot.Accounts)
+	if len(accountIDs) != 3 || accountIDs[0] != bank.ID || accountIDs[2] != wallet.ID {
+		t.Fatalf("account order = %v, want reordered bank first and new wallet last", accountIDs)
+	}
+}
+
+func categoryIDsForTest(categories []Category, typ, parentID string) []string {
+	var ids []string
+	for _, category := range categories {
+		if category.Type == typ && category.ParentID == parentID {
+			ids = append(ids, category.ID)
+		}
+	}
+	return ids
+}
+
+func memberIDsForTest(members []Member) []string {
+	ids := make([]string, 0, len(members))
+	for _, member := range members {
+		ids = append(ids, member.ID)
+	}
+	return ids
+}
+
+func accountIDsForTest(accounts []Account) []string {
+	ids := make([]string, 0, len(accounts))
+	for _, account := range accounts {
+		ids = append(ids, account.ID)
+	}
+	return ids
+}
+
+func moveIDFirstForTest(ids []string, id string) []string {
+	out := []string{id}
+	for _, value := range ids {
+		if value != id {
+			out = append(out, value)
+		}
+	}
+	return out
+}
+
 func TestCategorySuggestionsNaiveBayes(t *testing.T) {
 	ts := newTestServer(t)
 	token, _ := ts.pairDevice(t, "", "web", "web-admin")

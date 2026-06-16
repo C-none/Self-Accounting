@@ -68,6 +68,7 @@
 | --- | --- | --- | --- | --- |
 | Done | Add statistics filters and weekly timeline bucket | Statistics Client / Server | Statistics page filters by direction, member, category, bank and date range; timeline supports day, week and month buckets | Statistics API |
 | Done | Add multi-series comparison | Statistics Client / Server | Statistics page can compare一级分类、二级分类、使用人或银行；饼图按比较属性显示占比，折线图按比较属性绘制多条序列 | Statistics filters |
+| Done | Improve charts, transaction rows, category picker and master-data ordering | Flutter Client / Server | Charts use clearer colors and click-to-show line values; transaction rows use three-line details; transaction forms use bottom category picker; settings can reorder categories, members and accounts | Multi-series comparison |
 
 ## Cross-Cutting Checks
 

@@ -43,6 +43,7 @@ class _MasterDataPageState extends State<MasterDataPage> {
                   onAddChild: (parent) =>
                       _editCategory(type: parent.type, parentId: parent.id),
                   onEdit: (category) => _editCategory(category: category),
+                  onMove: _moveCategory,
                   onDelete: (category) => _confirmDelete(
                     '分类',
                     category.name,
@@ -54,6 +55,7 @@ class _MasterDataPageState extends State<MasterDataPage> {
                   members: bootstrap.members,
                   onAdd: () => _editMember(),
                   onEdit: (member) => _editMember(member: member),
+                  onMove: _moveMember,
                   onDelete: (member) => _confirmDelete(
                     '使用人',
                     member.name,
@@ -65,6 +67,7 @@ class _MasterDataPageState extends State<MasterDataPage> {
                   accounts: bootstrap.accounts,
                   onAdd: () => _editAccount(),
                   onEdit: (account) => _editAccount(account: account),
+                  onMove: _moveAccount,
                   onDelete: (account) => _confirmDelete(
                     '账户',
                     account.displayName,
@@ -183,6 +186,80 @@ class _MasterDataPageState extends State<MasterDataPage> {
     );
   }
 
+  Future<void> _moveCategory(Category category, int delta) async {
+    final siblings = widget.controller.bootstrapData?.categories
+        .where(
+          (item) =>
+              item.type == category.type && item.parentId == category.parentId,
+        )
+        .toList();
+    final orderedIds = _movedIds(
+      siblings?.map((item) => item.id).toList() ?? const [],
+      category.id,
+      delta,
+    );
+    if (orderedIds == null) {
+      return;
+    }
+    await _run(
+      (token) => widget.controller.api.reorderCategories(
+        token,
+        type: category.type,
+        parentId: category.parentId.isEmpty ? null : category.parentId,
+        orderedIds: orderedIds,
+      ),
+    );
+  }
+
+  Future<void> _moveMember(Member member, int delta) async {
+    final orderedIds = _movedIds(
+      widget.controller.bootstrapData?.members
+              .map((item) => item.id)
+              .toList() ??
+          const [],
+      member.id,
+      delta,
+    );
+    if (orderedIds == null) {
+      return;
+    }
+    await _run(
+      (token) => widget.controller.api.reorderMembers(token, orderedIds),
+    );
+  }
+
+  Future<void> _moveAccount(LedgerAccount account, int delta) async {
+    final orderedIds = _movedIds(
+      widget.controller.bootstrapData?.accounts
+              .map((item) => item.id)
+              .toList() ??
+          const [],
+      account.id,
+      delta,
+    );
+    if (orderedIds == null) {
+      return;
+    }
+    await _run(
+      (token) => widget.controller.api.reorderAccounts(token, orderedIds),
+    );
+  }
+
+  List<String>? _movedIds(List<String> ids, String id, int delta) {
+    final from = ids.indexOf(id);
+    if (from < 0) {
+      return null;
+    }
+    final to = from + delta;
+    if (to < 0 || to >= ids.length) {
+      return null;
+    }
+    final next = List<String>.from(ids);
+    final moved = next.removeAt(from);
+    next.insert(to, moved);
+    return next;
+  }
+
   Future<String?> _nameDialog({
     required String title,
     required String label,
@@ -251,6 +328,7 @@ class _CategorySection extends StatelessWidget {
     required this.onAddTop,
     required this.onAddChild,
     required this.onEdit,
+    required this.onMove,
     required this.onDelete,
   });
 
@@ -258,6 +336,7 @@ class _CategorySection extends StatelessWidget {
   final ValueChanged<String> onAddTop;
   final ValueChanged<Category> onAddChild;
   final ValueChanged<Category> onEdit;
+  final void Function(Category category, int delta) onMove;
   final ValueChanged<Category> onDelete;
 
   @override
@@ -286,16 +365,15 @@ class _CategorySection extends StatelessWidget {
             for (final entry in types.entries) ...[
               Text(entry.value, style: Theme.of(context).textTheme.titleSmall),
               const SizedBox(height: 4),
-              for (final top in categories.where(
-                (c) => c.type == entry.key && c.isTopLevel,
-              ))
+              for (var i = 0; i < _topCategories(entry.key).length; i++)
                 _CategoryTile(
-                  category: top,
-                  children: categories
-                      .where((c) => c.parentId == top.id)
-                      .toList(),
-                  onAddChild: () => onAddChild(top),
+                  category: _topCategories(entry.key)[i],
+                  children: _childCategories(_topCategories(entry.key)[i]),
+                  index: i,
+                  total: _topCategories(entry.key).length,
+                  onAddChild: () => onAddChild(_topCategories(entry.key)[i]),
                   onEdit: onEdit,
+                  onMove: onMove,
                   onDelete: onDelete,
                 ),
               const SizedBox(height: 8),
@@ -305,21 +383,35 @@ class _CategorySection extends StatelessWidget {
       ),
     );
   }
+
+  List<Category> _topCategories(String type) {
+    return categories.where((c) => c.type == type && c.isTopLevel).toList();
+  }
+
+  List<Category> _childCategories(Category parent) {
+    return categories.where((c) => c.parentId == parent.id).toList();
+  }
 }
 
 class _CategoryTile extends StatelessWidget {
   const _CategoryTile({
     required this.category,
     required this.children,
+    required this.index,
+    required this.total,
     required this.onAddChild,
     required this.onEdit,
+    required this.onMove,
     required this.onDelete,
   });
 
   final Category category;
   final List<Category> children;
+  final int index;
+  final int total;
   final VoidCallback onAddChild;
   final ValueChanged<Category> onEdit;
+  final void Function(Category category, int delta) onMove;
   final ValueChanged<Category> onDelete;
 
   @override
@@ -330,6 +422,16 @@ class _CategoryTile extends StatelessWidget {
       trailing: Wrap(
         spacing: 4,
         children: [
+          IconButton(
+            tooltip: '上移',
+            onPressed: index == 0 ? null : () => onMove(category, -1),
+            icon: const Icon(Icons.arrow_upward),
+          ),
+          IconButton(
+            tooltip: '下移',
+            onPressed: index >= total - 1 ? null : () => onMove(category, 1),
+            icon: const Icon(Icons.arrow_downward),
+          ),
           IconButton(
             tooltip: '新增二级分类',
             onPressed: onAddChild,
@@ -348,21 +450,33 @@ class _CategoryTile extends StatelessWidget {
         ],
       ),
       children: [
-        for (final child in children)
+        for (var i = 0; i < children.length; i++)
           ListTile(
             contentPadding: const EdgeInsets.only(left: 32, right: 8),
-            title: Text(child.name),
+            title: Text(children[i].name),
             trailing: Wrap(
               spacing: 4,
               children: [
                 IconButton(
+                  tooltip: '上移',
+                  onPressed: i == 0 ? null : () => onMove(children[i], -1),
+                  icon: const Icon(Icons.arrow_upward),
+                ),
+                IconButton(
+                  tooltip: '下移',
+                  onPressed: i >= children.length - 1
+                      ? null
+                      : () => onMove(children[i], 1),
+                  icon: const Icon(Icons.arrow_downward),
+                ),
+                IconButton(
                   tooltip: '编辑',
-                  onPressed: () => onEdit(child),
+                  onPressed: () => onEdit(children[i]),
                   icon: const Icon(Icons.edit_outlined),
                 ),
                 IconButton(
                   tooltip: '删除',
-                  onPressed: () => onDelete(child),
+                  onPressed: () => onDelete(children[i]),
                   icon: const Icon(Icons.delete_outline),
                 ),
               ],
@@ -378,12 +492,14 @@ class _MemberSection extends StatelessWidget {
     required this.members,
     required this.onAdd,
     required this.onEdit,
+    required this.onMove,
     required this.onDelete,
   });
 
   final List<Member> members;
   final VoidCallback onAdd;
   final ValueChanged<Member> onEdit;
+  final void Function(Member member, int delta) onMove;
   final ValueChanged<Member> onDelete;
 
   @override
@@ -394,6 +510,7 @@ class _MemberSection extends StatelessWidget {
       itemTitle: (item) => item.name,
       onAdd: onAdd,
       onEdit: onEdit,
+      onMove: onMove,
       onDelete: onDelete,
     );
   }
@@ -404,12 +521,14 @@ class _AccountSection extends StatelessWidget {
     required this.accounts,
     required this.onAdd,
     required this.onEdit,
+    required this.onMove,
     required this.onDelete,
   });
 
   final List<LedgerAccount> accounts;
   final VoidCallback onAdd;
   final ValueChanged<LedgerAccount> onEdit;
+  final void Function(LedgerAccount account, int delta) onMove;
   final ValueChanged<LedgerAccount> onDelete;
 
   @override
@@ -420,6 +539,7 @@ class _AccountSection extends StatelessWidget {
       itemTitle: (item) => item.displayName,
       onAdd: onAdd,
       onEdit: onEdit,
+      onMove: onMove,
       onDelete: onDelete,
     );
   }
@@ -432,6 +552,7 @@ class _SimpleSection<T> extends StatelessWidget {
     required this.itemTitle,
     required this.onAdd,
     required this.onEdit,
+    required this.onMove,
     required this.onDelete,
   });
 
@@ -440,6 +561,7 @@ class _SimpleSection<T> extends StatelessWidget {
   final String Function(T) itemTitle;
   final VoidCallback onAdd;
   final ValueChanged<T> onEdit;
+  final void Function(T item, int delta) onMove;
   final ValueChanged<T> onDelete;
 
   @override
@@ -466,20 +588,32 @@ class _SimpleSection<T> extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            for (final item in items)
+            for (var i = 0; i < items.length; i++)
               ListTile(
-                title: Text(itemTitle(item)),
+                title: Text(itemTitle(items[i])),
                 trailing: Wrap(
                   spacing: 4,
                   children: [
                     IconButton(
+                      tooltip: '上移',
+                      onPressed: i == 0 ? null : () => onMove(items[i], -1),
+                      icon: const Icon(Icons.arrow_upward),
+                    ),
+                    IconButton(
+                      tooltip: '下移',
+                      onPressed: i >= items.length - 1
+                          ? null
+                          : () => onMove(items[i], 1),
+                      icon: const Icon(Icons.arrow_downward),
+                    ),
+                    IconButton(
                       tooltip: '编辑',
-                      onPressed: () => onEdit(item),
+                      onPressed: () => onEdit(items[i]),
                       icon: const Icon(Icons.edit_outlined),
                     ),
                     IconButton(
                       tooltip: '删除',
-                      onPressed: () => onDelete(item),
+                      onPressed: () => onDelete(items[i]),
                       icon: const Icon(Icons.delete_outline),
                     ),
                   ],

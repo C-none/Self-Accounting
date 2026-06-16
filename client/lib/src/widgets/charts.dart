@@ -4,39 +4,56 @@ import 'package:flutter/material.dart';
 import 'package:ledger_client/src/models.dart';
 
 Color statColorForIndex(ColorScheme scheme, int index) {
-  final colors = [
-    scheme.primary,
-    scheme.secondary,
-    scheme.tertiary,
-    Colors.teal,
-    Colors.indigo,
-    Colors.brown,
-    Colors.blueGrey,
-    Colors.pink,
-    Colors.green,
-    Colors.deepOrange,
-  ];
-  return colors[index % colors.length];
+  return _statPalette[index % _statPalette.length];
 }
 
+int statColorIndexForGroup(
+  Map<String, int> colorIndexes,
+  String groupId,
+  int fallbackIndex,
+) {
+  return colorIndexes[groupId] ?? fallbackIndex;
+}
+
+const _statPalette = [
+  Color(0xFF2563EB),
+  Color(0xFFDC2626),
+  Color(0xFF16A34A),
+  Color(0xFFF59E0B),
+  Color(0xFF7C3AED),
+  Color(0xFF0891B2),
+  Color(0xFFDB2777),
+  Color(0xFF4D7C0F),
+  Color(0xFFEA580C),
+  Color(0xFF475569),
+  Color(0xFF0F766E),
+  Color(0xFF9333EA),
+];
+
 class CategoryPieChart extends StatelessWidget {
-  const CategoryPieChart({super.key, required this.items});
+  const CategoryPieChart({
+    super.key,
+    required this.items,
+    this.colorIndexes = const {},
+  });
 
   final List<CategoryStat> items;
+  final Map<String, int> colorIndexes;
 
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
-      painter: _PiePainter(items, Theme.of(context).colorScheme),
+      painter: _PiePainter(items, colorIndexes, Theme.of(context).colorScheme),
       child: const SizedBox.expand(),
     );
   }
 }
 
 class _PiePainter extends CustomPainter {
-  _PiePainter(this.items, this.scheme);
+  _PiePainter(this.items, this.colorIndexes, this.scheme);
 
   final List<CategoryStat> items;
+  final Map<String, int> colorIndexes;
   final ColorScheme scheme;
 
   @override
@@ -50,10 +67,20 @@ class _PiePainter extends CustomPainter {
     final rect = Rect.fromCircle(center: center, radius: radius);
     var start = -math.pi / 2;
     final paint = Paint()..style = PaintingStyle.fill;
+    final separatorPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2
+      ..color = scheme.surface.withValues(alpha: 0.92);
     for (var i = 0; i < items.length; i++) {
       final sweep = (items[i].amountCent / total) * math.pi * 2;
-      paint.color = statColorForIndex(scheme, i);
+      final colorIndex = statColorIndexForGroup(
+        colorIndexes,
+        items[i].groupId,
+        i,
+      );
+      paint.color = statColorForIndex(scheme, colorIndex);
       canvas.drawArc(rect, start, sweep, true, paint);
+      canvas.drawArc(rect, start, sweep, true, separatorPaint);
       start += sweep;
     }
     final inner = Paint()..color = scheme.surface;
@@ -62,27 +89,46 @@ class _PiePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _PiePainter oldDelegate) =>
-      oldDelegate.items != items;
+      oldDelegate.items != items || oldDelegate.colorIndexes != colorIndexes;
 }
 
 class TimelineLineChart extends StatelessWidget {
-  const TimelineLineChart({super.key, required this.series});
+  const TimelineLineChart({
+    super.key,
+    required this.series,
+    this.colorIndexes = const {},
+    this.selectedGroupId,
+  });
 
   final List<TimelineSeries> series;
+  final Map<String, int> colorIndexes;
+  final String? selectedGroupId;
 
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
-      painter: _LinePainter(series, Theme.of(context).colorScheme),
+      painter: _LinePainter(
+        series,
+        colorIndexes,
+        selectedGroupId,
+        Theme.of(context).colorScheme,
+      ),
       child: const SizedBox.expand(),
     );
   }
 }
 
 class _LinePainter extends CustomPainter {
-  _LinePainter(this.series, this.scheme);
+  _LinePainter(
+    this.series,
+    this.colorIndexes,
+    this.selectedGroupId,
+    this.scheme,
+  );
 
   final List<TimelineSeries> series;
+  final Map<String, int> colorIndexes;
+  final String? selectedGroupId;
   final ColorScheme scheme;
 
   @override
@@ -130,7 +176,10 @@ class _LinePainter extends CustomPainter {
         continue;
       }
       final byDate = {for (final point in item.points) point.date: point};
-      final color = statColorForIndex(scheme, seriesIndex);
+      final color = statColorForIndex(
+        scheme,
+        statColorIndexForGroup(colorIndexes, item.groupId, seriesIndex),
+      );
       final path = Path();
       for (var i = 0; i < sortedDates.length; i++) {
         final amount = byDate[sortedDates[i]]?.amountCent ?? 0;
@@ -161,14 +210,16 @@ class _LinePainter extends CustomPainter {
         final y = chart.bottom - chart.height * amount / maxAmount;
         final offset = Offset(x, y);
         canvas.drawCircle(offset, 3.2, dotPaint);
-        _drawPointValue(
-          canvas,
-          size,
-          offset,
-          formatMoney(amount),
-          color,
-          seriesIndex,
-        );
+        if (selectedGroupId == item.groupId) {
+          _drawPointValue(
+            canvas,
+            size,
+            offset,
+            formatMoney(amount),
+            color,
+            seriesIndex,
+          );
+        }
       }
     }
 
@@ -186,12 +237,6 @@ class _LinePainter extends CustomPainter {
         scheme.onSurface,
       );
     }
-    _drawLabel(
-      canvas,
-      Offset(0, chart.top),
-      formatMoney(maxAmount),
-      scheme.onSurface,
-    );
   }
 
   void _drawLabel(Canvas canvas, Offset offset, String text, Color color) {
@@ -249,5 +294,7 @@ class _LinePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _LinePainter oldDelegate) =>
-      oldDelegate.series != series;
+      oldDelegate.series != series ||
+      oldDelegate.colorIndexes != colorIndexes ||
+      oldDelegate.selectedGroupId != selectedGroupId;
 }

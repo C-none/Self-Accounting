@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ledger_client/src/app_controller.dart';
 import 'package:ledger_client/src/models.dart';
+import 'package:ledger_client/src/widgets/category_picker.dart';
 import 'package:ledger_client/src/widgets/responsive_layout.dart';
 
 class TransactionFormPage extends StatefulWidget {
@@ -83,10 +84,6 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
   @override
   Widget build(BuildContext context) {
     final bootstrap = widget.controller.bootstrapData!;
-    final topCategories = _topCategories(bootstrap);
-    final childCategories = bootstrap.categories
-        .where((c) => c.parentId == categoryL1Id && c.type == direction)
-        .toList();
     return Scaffold(
       appBar: AppBar(
         title: Text(editing ? '编辑交易' : '新增交易'),
@@ -143,48 +140,21 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
                           });
                         },
                 ),
-                DropdownButtonFormField<String>(
-                  key: ValueKey('form-l1-$direction-$categoryL1Id'),
-                  initialValue: categoryL1Id,
-                  isExpanded: true,
-                  decoration: const InputDecoration(labelText: '一级分类'),
-                  items: topCategories
-                      .map(
-                        (c) =>
-                            DropdownMenuItem(value: c.id, child: Text(c.name)),
-                      )
-                      .toList(),
-                  onChanged: submitting
-                      ? null
-                      : (value) {
-                          setState(() {
-                            categoryL1Id = value;
-                            categoryL2Id = null;
-                          });
-                        },
-                ),
-                DropdownButtonFormField<String?>(
-                  key: ValueKey('form-l2-$categoryL1Id-$categoryL2Id'),
-                  initialValue: categoryL2Id?.isEmpty == true
-                      ? null
-                      : categoryL2Id,
-                  isExpanded: true,
-                  decoration: const InputDecoration(labelText: '二级分类'),
-                  items: [
-                    const DropdownMenuItem<String?>(
-                      value: null,
-                      child: Text('不选择'),
-                    ),
-                    ...childCategories.map(
-                      (c) => DropdownMenuItem<String?>(
-                        value: c.id,
-                        child: Text(c.name),
-                      ),
-                    ),
-                  ],
-                  onChanged: submitting
-                      ? null
-                      : (value) => setState(() => categoryL2Id = value),
+                CategoryPickerField(
+                  key: ValueKey(
+                    'form-category-$direction-$categoryL1Id-$categoryL2Id',
+                  ),
+                  categories: bootstrap.categories,
+                  direction: direction,
+                  categoryL1Id: categoryL1Id,
+                  categoryL2Id: categoryL2Id,
+                  enabled: !submitting,
+                  onChanged: (selection) {
+                    setState(() {
+                      categoryL1Id = selection.categoryL1Id;
+                      categoryL2Id = selection.categoryL2Id;
+                    });
+                  },
                 ),
                 DropdownButtonFormField<String>(
                   key: ValueKey('form-member-$memberId'),

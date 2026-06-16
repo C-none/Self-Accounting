@@ -77,6 +77,50 @@ void main() {
       'amount_cent': 0,
     });
     expect(point.amountCent, 0);
+
+    final member = Member.fromJson({
+      'id': 'member_family',
+      'name': '家人',
+      'sort_order': 20,
+    });
+    expect(member.sortOrder, 20);
+
+    final account = LedgerAccount.fromJson({
+      'id': 'account_bank',
+      'name': '工商银行',
+      'type': 'bank',
+      'masked_identifier': '0973',
+      'sort_order': 30,
+    });
+    expect(account.sortOrder, 30);
+    expect(account.displayName, '工商银行 尾号0973');
+  });
+
+  test('formats transaction row category and time display', () {
+    final categories = [
+      Category(
+        id: 'expense_food',
+        parentId: '',
+        name: '餐饮',
+        type: 'expense',
+        sortOrder: 10,
+      ),
+      Category(
+        id: 'expense_food_drink',
+        parentId: 'expense_food',
+        name: '饮品',
+        type: 'expense',
+        sortOrder: 20,
+      ),
+    ];
+    final time = DateTime(2026, 6, 13, 8, 9).millisecondsSinceEpoch ~/ 1000;
+
+    expect(
+      categoryDisplayName(categories, 'expense_food', 'expense_food_drink'),
+      '饮品 - 餐饮',
+    );
+    expect(categoryDisplayName(categories, 'expense_food', ''), '餐饮');
+    expect(formatTimeOnly(time), '08:09');
   });
 
   test(

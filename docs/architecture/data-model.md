@@ -91,7 +91,7 @@ CREATE TABLE categories (
 );
 ```
 
-一级分类 `parent_id` 为空，二级分类 `parent_id` 指向一级分类。
+一级分类 `parent_id` 为空，二级分类 `parent_id` 指向一级分类。`sort_order` 控制同一方向、同一父级下的客户端显示顺序；设置页调整顺序时服务端按 `10, 20, 30...` 重写该作用域内的值。
 
 ### members
 
@@ -106,6 +106,8 @@ CREATE TABLE members (
   deleted_at INTEGER
 );
 ```
+
+`sort_order` 控制使用人在表单、过滤和交易列表中的显示顺序。
 
 ### accounts
 
@@ -123,7 +125,7 @@ CREATE TABLE accounts (
 );
 ```
 
-账户以银行名称和可选银行卡尾号组合展示。`name` 保存银行名称，例如 `工商银行`；`masked_identifier` 只保存可选尾号，例如 `0973`，不得保存完整卡号。旧的现金、微信零钱、支付宝等账户仍可保留为普通账户名称。
+账户以银行名称和可选银行卡尾号组合展示。`name` 保存银行名称，例如 `工商银行`；`masked_identifier` 只保存可选尾号，例如 `0973`，不得保存完整卡号。旧的现金、微信零钱、支付宝等账户仍可保留为普通账户名称。`sort_order` 控制账户在表单、过滤和短信模板等入口中的显示顺序。
 
 ## 附件表
 

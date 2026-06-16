@@ -14,8 +14,18 @@ type categoryRequest struct {
 	ParentID *string `json:"parent_id"`
 }
 
+type categoryReorderRequest struct {
+	Type       string   `json:"type"`
+	ParentID   *string  `json:"parent_id"`
+	OrderedIDs []string `json:"ordered_ids"`
+}
+
 type memberRequest struct {
 	Name string `json:"name"`
+}
+
+type reorderRequest struct {
+	OrderedIDs []string `json:"ordered_ids"`
 }
 
 type accountRequest struct {
@@ -41,6 +51,12 @@ func (a *App) handleCreateCategory(w http.ResponseWriter, r *http.Request, devic
 		return
 	}
 	cat.ID = id
+	sortOrder, err := a.nextCategorySortOrder(r, cat.Type, cat.ParentID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to inspect category order")
+		return
+	}
+	cat.SortOrder = sortOrder
 	if err := a.insertCategory(r, cat); err != nil {
 		writeError(w, http.StatusInternalServerError, "internal_error", "failed to save category")
 		return
@@ -130,6 +146,50 @@ func (a *App) handleDeleteCategory(w http.ResponseWriter, r *http.Request, devic
 	writeJSON(w, http.StatusOK, map[string]any{"deleted": true, "id": id})
 }
 
+func (a *App) handleReorderCategories(w http.ResponseWriter, r *http.Request, device Device) {
+	var req categoryReorderRequest
+	if err := decodeJSON(r, &req); err != nil {
+		writeError(w, http.StatusBadRequest, "validation_error", "invalid JSON request")
+		return
+	}
+	typ := strings.TrimSpace(req.Type)
+	if !validCategoryType(typ) {
+		writeError(w, http.StatusBadRequest, "validation_error", "type must be income, expense or transfer")
+		return
+	}
+	parentID := ""
+	if req.ParentID != nil {
+		parentID = strings.TrimSpace(*req.ParentID)
+	}
+	if parentID != "" {
+		var count int
+		err := a.db.QueryRowContext(r.Context(), `SELECT COUNT(*) FROM categories WHERE id = ? AND parent_id IS NULL AND type = ? AND active = 1 AND deleted_at IS NULL`, parentID, typ).Scan(&count)
+		if err != nil {
+			writeError(w, http.StatusInternalServerError, "internal_error", "failed to inspect parent category")
+			return
+		}
+		if count == 0 {
+			writeError(w, http.StatusBadRequest, "validation_error", "parent category is invalid")
+			return
+		}
+	}
+	existing, err := a.categoryIDsForScope(r, typ, parentID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to load category order")
+		return
+	}
+	if err := validateOrderedIDs(existing, req.OrderedIDs); err != nil {
+		writeError(w, http.StatusBadRequest, "validation_error", err.Error())
+		return
+	}
+	if err := a.reorderRows(r, "categories", req.OrderedIDs); err != nil {
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to update category order")
+		return
+	}
+	_ = a.writeAudit(r.Context(), "category", typ+":"+parentID, "reorder", device.ID, nil)
+	writeJSON(w, http.StatusOK, map[string]any{"reordered": true, "ordered_ids": req.OrderedIDs})
+}
+
 func (a *App) handleCreateMember(w http.ResponseWriter, r *http.Request, device Device) {
 	var req memberRequest
 	if err := decodeJSON(r, &req); err != nil {
@@ -147,7 +207,12 @@ func (a *App) handleCreateMember(w http.ResponseWriter, r *http.Request, device 
 		return
 	}
 	now := unixNow()
-	m := Member{ID: id, Name: name, SortOrder: 100, Active: true}
+	sortOrder, err := a.nextTableSortOrder(r, "members")
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to inspect member order")
+		return
+	}
+	m := Member{ID: id, Name: name, SortOrder: sortOrder, Active: true}
 	if _, err := a.db.ExecContext(r.Context(), `INSERT INTO members(id, name, sort_order, active, created_at, updated_at) VALUES (?, ?, ?, 1, ?, ?)`, id, name, m.SortOrder, now, now); err != nil {
 		writeError(w, http.StatusInternalServerError, "internal_error", "failed to save member")
 		return
@@ -201,6 +266,29 @@ func (a *App) handleDeleteMember(w http.ResponseWriter, r *http.Request, device 
 	writeJSON(w, http.StatusOK, map[string]any{"deleted": true, "id": id})
 }
 
+func (a *App) handleReorderMembers(w http.ResponseWriter, r *http.Request, device Device) {
+	var req reorderRequest
+	if err := decodeJSON(r, &req); err != nil {
+		writeError(w, http.StatusBadRequest, "validation_error", "invalid JSON request")
+		return
+	}
+	existing, err := a.activeIDsForTable(r, "members")
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to load member order")
+		return
+	}
+	if err := validateOrderedIDs(existing, req.OrderedIDs); err != nil {
+		writeError(w, http.StatusBadRequest, "validation_error", err.Error())
+		return
+	}
+	if err := a.reorderRows(r, "members", req.OrderedIDs); err != nil {
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to update member order")
+		return
+	}
+	_ = a.writeAudit(r.Context(), "member", "all", "reorder", device.ID, nil)
+	writeJSON(w, http.StatusOK, map[string]any{"reordered": true, "ordered_ids": req.OrderedIDs})
+}
+
 func (a *App) handleCreateAccount(w http.ResponseWriter, r *http.Request, device Device) {
 	var req accountRequest
 	if err := decodeJSON(r, &req); err != nil {
@@ -219,7 +307,12 @@ func (a *App) handleCreateAccount(w http.ResponseWriter, r *http.Request, device
 	}
 	now := unixNow()
 	acc.ID = id
-	acc.SortOrder = 100
+	sortOrder, err := a.nextTableSortOrder(r, "accounts")
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to inspect account order")
+		return
+	}
+	acc.SortOrder = sortOrder
 	acc.Active = true
 	if _, err := a.db.ExecContext(r.Context(), `INSERT INTO accounts(id, name, type, masked_identifier, sort_order, active, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 1, ?, ?)`, acc.ID, acc.Name, acc.Type, nullString(acc.MaskedIdentifier), acc.SortOrder, now, now); err != nil {
 		writeError(w, http.StatusInternalServerError, "internal_error", "failed to save account")
@@ -274,6 +367,29 @@ func (a *App) handleDeleteAccount(w http.ResponseWriter, r *http.Request, device
 	}
 	_ = a.writeAudit(r.Context(), "account", id, "delete", device.ID, nil)
 	writeJSON(w, http.StatusOK, map[string]any{"deleted": true, "id": id})
+}
+
+func (a *App) handleReorderAccounts(w http.ResponseWriter, r *http.Request, device Device) {
+	var req reorderRequest
+	if err := decodeJSON(r, &req); err != nil {
+		writeError(w, http.StatusBadRequest, "validation_error", "invalid JSON request")
+		return
+	}
+	existing, err := a.activeIDsForTable(r, "accounts")
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to load account order")
+		return
+	}
+	if err := validateOrderedIDs(existing, req.OrderedIDs); err != nil {
+		writeError(w, http.StatusBadRequest, "validation_error", err.Error())
+		return
+	}
+	if err := a.reorderRows(r, "accounts", req.OrderedIDs); err != nil {
+		writeError(w, http.StatusInternalServerError, "internal_error", "failed to update account order")
+		return
+	}
+	_ = a.writeAudit(r.Context(), "account", "all", "reorder", device.ID, nil)
+	writeJSON(w, http.StatusOK, map[string]any{"reordered": true, "ordered_ids": req.OrderedIDs})
 }
 
 func (a *App) categoryFromRequest(r *http.Request, id string, req categoryRequest) (Category, error) {
@@ -359,6 +475,109 @@ func (a *App) updateCategory(r *http.Request, c Category) error {
 	}
 	_, err := a.db.ExecContext(r.Context(), `UPDATE categories SET parent_id = ?, name = ?, type = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL AND active = 1`, parent, c.Name, c.Type, unixNow(), c.ID)
 	return err
+}
+
+func (a *App) nextCategorySortOrder(r *http.Request, typ, parentID string) (int, error) {
+	var query string
+	var args []any
+	if parentID == "" {
+		query = `SELECT COALESCE(MAX(sort_order), 0) + 10 FROM categories WHERE type = ? AND parent_id IS NULL AND active = 1 AND deleted_at IS NULL`
+		args = []any{typ}
+	} else {
+		query = `SELECT COALESCE(MAX(sort_order), 0) + 10 FROM categories WHERE type = ? AND parent_id = ? AND active = 1 AND deleted_at IS NULL`
+		args = []any{typ, parentID}
+	}
+	var next int
+	err := a.db.QueryRowContext(r.Context(), query, args...).Scan(&next)
+	return next, err
+}
+
+func (a *App) nextTableSortOrder(r *http.Request, table string) (int, error) {
+	var next int
+	err := a.db.QueryRowContext(r.Context(), fmt.Sprintf(`SELECT COALESCE(MAX(sort_order), 0) + 10 FROM %s WHERE active = 1 AND deleted_at IS NULL`, table)).Scan(&next)
+	return next, err
+}
+
+func (a *App) categoryIDsForScope(r *http.Request, typ, parentID string) ([]string, error) {
+	var rows *sql.Rows
+	var err error
+	if parentID == "" {
+		rows, err = a.db.QueryContext(r.Context(), `SELECT id FROM categories WHERE type = ? AND parent_id IS NULL AND active = 1 AND deleted_at IS NULL ORDER BY sort_order, name`, typ)
+	} else {
+		rows, err = a.db.QueryContext(r.Context(), `SELECT id FROM categories WHERE type = ? AND parent_id = ? AND active = 1 AND deleted_at IS NULL ORDER BY sort_order, name`, typ, parentID)
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	return scanIDRows(rows)
+}
+
+func (a *App) activeIDsForTable(r *http.Request, table string) ([]string, error) {
+	rows, err := a.db.QueryContext(r.Context(), fmt.Sprintf(`SELECT id FROM %s WHERE active = 1 AND deleted_at IS NULL ORDER BY sort_order, name`, table))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	return scanIDRows(rows)
+}
+
+func scanIDRows(rows *sql.Rows) ([]string, error) {
+	var ids []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		ids = append(ids, id)
+	}
+	return ids, rows.Err()
+}
+
+func validateOrderedIDs(existing, ordered []string) error {
+	if len(existing) != len(ordered) {
+		return fmt.Errorf("ordered_ids must include every item in scope")
+	}
+	existingSet := make(map[string]bool, len(existing))
+	for _, id := range existing {
+		existingSet[id] = true
+	}
+	seen := make(map[string]bool, len(ordered))
+	for _, id := range ordered {
+		if strings.TrimSpace(id) == "" {
+			return fmt.Errorf("ordered_ids must not contain empty id")
+		}
+		if seen[id] {
+			return fmt.Errorf("ordered_ids must not contain duplicate id")
+		}
+		seen[id] = true
+		if !existingSet[id] {
+			return fmt.Errorf("ordered_ids contains id outside the requested scope")
+		}
+	}
+	return nil
+}
+
+func (a *App) reorderRows(r *http.Request, table string, orderedIDs []string) error {
+	tx, err := a.db.BeginTx(r.Context(), nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	now := unixNow()
+	query := fmt.Sprintf(`UPDATE %s SET sort_order = ?, updated_at = ? WHERE id = ? AND active = 1 AND deleted_at IS NULL`, table)
+	for i, id := range orderedIDs {
+		result, err := tx.ExecContext(r.Context(), query, (i+1)*10, now, id)
+		if err != nil {
+			return err
+		}
+		if affected, err := result.RowsAffected(); err != nil {
+			return err
+		} else if affected != 1 {
+			return sql.ErrNoRows
+		}
+	}
+	return tx.Commit()
 }
 
 func (a *App) categoryIsReferenced(r *http.Request, id string) (bool, error) {

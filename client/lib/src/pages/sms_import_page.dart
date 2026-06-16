@@ -6,6 +6,7 @@ import 'package:ledger_client/src/app_controller.dart';
 import 'package:ledger_client/src/models.dart';
 import 'package:ledger_client/src/sms/sms_platform.dart';
 import 'package:ledger_client/src/sms/sms_templates.dart';
+import 'package:ledger_client/src/widgets/category_picker.dart';
 import 'package:ledger_client/src/widgets/responsive_layout.dart';
 
 class SmsImportPage extends StatefulWidget {
@@ -797,12 +798,6 @@ class _SmsConfirmPageState extends State<SmsConfirmPage> {
   @override
   Widget build(BuildContext context) {
     final bootstrap = widget.controller.bootstrapData!;
-    final topCategories = bootstrap.categories
-        .where((c) => c.isTopLevel && c.type == direction)
-        .toList();
-    final childCategories = bootstrap.categories
-        .where((c) => c.parentId == categoryL1Id && c.type == direction)
-        .toList();
     return Scaffold(
       appBar: AppBar(title: const Text('确认短信')),
       body: Form(
@@ -836,51 +831,34 @@ class _SmsConfirmPageState extends State<SmsConfirmPage> {
                       : (value) {
                           setState(() {
                             direction = value!;
-                            categoryL1Id = bootstrap.categories
-                                .firstWhere(
-                                  (c) => c.isTopLevel && c.type == direction,
-                                )
-                                .id;
+                            categoryL1Id =
+                                bootstrap.categories
+                                    .where(
+                                      (c) =>
+                                          c.isTopLevel && c.type == direction,
+                                    )
+                                    .firstOrNull
+                                    ?.id ??
+                                '';
                             categoryL2Id = null;
                           });
                         },
                 ),
-                DropdownButtonFormField<String>(
-                  initialValue: categoryL1Id,
-                  isExpanded: true,
-                  decoration: const InputDecoration(labelText: '一级分类'),
-                  items: topCategories
-                      .map(
-                        (c) =>
-                            DropdownMenuItem(value: c.id, child: Text(c.name)),
-                      )
-                      .toList(),
-                  onChanged: submitting
-                      ? null
-                      : (value) => setState(() {
-                          categoryL1Id = value!;
-                          categoryL2Id = null;
-                        }),
-                ),
-                DropdownButtonFormField<String?>(
-                  initialValue: categoryL2Id,
-                  isExpanded: true,
-                  decoration: const InputDecoration(labelText: '二级分类'),
-                  items: [
-                    const DropdownMenuItem<String?>(
-                      value: null,
-                      child: Text('不选择'),
-                    ),
-                    ...childCategories.map(
-                      (c) => DropdownMenuItem<String?>(
-                        value: c.id,
-                        child: Text(c.name),
-                      ),
-                    ),
-                  ],
-                  onChanged: submitting
-                      ? null
-                      : (value) => setState(() => categoryL2Id = value),
+                CategoryPickerField(
+                  key: ValueKey(
+                    'sms-category-$direction-$categoryL1Id-$categoryL2Id',
+                  ),
+                  categories: bootstrap.categories,
+                  direction: direction,
+                  categoryL1Id: categoryL1Id,
+                  categoryL2Id: categoryL2Id,
+                  enabled: !submitting,
+                  onChanged: (selection) {
+                    setState(() {
+                      categoryL1Id = selection.categoryL1Id;
+                      categoryL2Id = selection.categoryL2Id;
+                    });
+                  },
                 ),
                 DropdownButtonFormField<String>(
                   initialValue: memberId,

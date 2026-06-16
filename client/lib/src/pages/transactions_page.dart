@@ -521,9 +521,18 @@ class _TransactionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final category = nameOf(bootstrap.categories, item.categoryL1Id);
+    final category = categoryDisplayName(
+      bootstrap.categories,
+      item.categoryL1Id,
+      item.categoryL2Id,
+    );
     final member = nameOf(bootstrap.members, item.memberId);
     final account = nameOf(bootstrap.accounts, item.accountId);
+    final details = [
+      if (item.counterparty.trim().isNotEmpty) item.counterparty.trim(),
+      if (item.description.trim().isNotEmpty) item.description.trim(),
+      account,
+    ].join(' · ');
     final color = item.direction == 'income'
         ? Colors.green.shade700
         : item.direction == 'transfer'
@@ -532,41 +541,63 @@ class _TransactionTile extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Card(
-        child: ListTile(
+        child: InkWell(
           onTap: onTap,
-          title: Text(
-            item.counterparty.isEmpty ? category : item.counterparty,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          subtitle: Text(
-            '${formatDateTime(item.transactionTime)} · $category · $member · $account',
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (thumbnailBytes != null) ...[
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.memory(
-                    thumbnailBytes!,
-                    width: 44,
-                    height: 44,
-                    fit: BoxFit.cover,
-                    alignment: Alignment.center,
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        category,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        details,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '$member - ${formatTimeOnly(item.transactionTime)}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(width: 12),
+                if (thumbnailBytes != null) ...[
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.memory(
+                      thumbnailBytes!,
+                      width: 44,
+                      height: 44,
+                      fit: BoxFit.cover,
+                      alignment: Alignment.center,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                ],
+                Text(
+                  formatMoney(item.amountCent),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleMedium?.copyWith(color: color),
+                ),
               ],
-              Text(
-                formatMoney(item.amountCent),
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(color: color),
-              ),
-            ],
+            ),
           ),
         ),
       ),
