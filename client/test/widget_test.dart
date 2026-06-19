@@ -123,6 +123,29 @@ void main() {
     expect(formatTimeOnly(time), '08:09');
   });
 
+  test('formats transaction date filters as month-day-year', () {
+    final date = DateTime(2026, 6, 9);
+
+    expect(formatMonthDayYearDate(date), '06-09-2026');
+    expect(parseMonthDayYearDate('06-09-2026'), date);
+    expect(parseMonthDayYearDate('6-9-2026'), date);
+    expect(parseMonthDayYearDate('20260609'), isNull);
+    expect(parseMonthDayYearDate('13-09-2026'), isNull);
+  });
+
+  test('formats transaction detail line without account', () {
+    expect(
+      transactionDetailLine(description: '早餐拿铁', counterparty: '咖啡店'),
+      '早餐拿铁 · 咖啡店',
+    );
+    expect(transactionDetailLine(description: '', counterparty: '咖啡店'), '咖啡店');
+    expect(
+      transactionDetailLine(description: ' 早餐拿铁 ', counterparty: ''),
+      '早餐拿铁',
+    );
+    expect(transactionDetailLine(description: '', counterparty: ''), '');
+  });
+
   test(
     'parses SMS body into structured candidate without uploading raw body',
     () {

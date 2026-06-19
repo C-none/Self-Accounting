@@ -337,6 +337,7 @@ class _StatsFilterCard extends StatelessWidget {
                     : constraints.maxWidth >= 520
                     ? (constraints.maxWidth - 12) / 2
                     : constraints.maxWidth;
+                final buttonHeight = constraints.maxWidth >= 520 ? 40.0 : 48.0;
                 return Wrap(
                   spacing: 12,
                   runSpacing: 12,
@@ -418,11 +419,15 @@ class _StatsFilterCard extends StatelessWidget {
                     ),
                     SizedBox(
                       width: fieldWidth,
-                      height: 56,
+                      height: buttonHeight,
                       child: OutlinedButton.icon(
                         onPressed: onClear,
                         icon: const Icon(Icons.filter_alt_off),
                         label: const Text('清除过滤'),
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: Size.fromHeight(buttonHeight),
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                        ),
                       ),
                     ),
                   ],

@@ -16,18 +16,18 @@ int statColorIndexForGroup(
 }
 
 const _statPalette = [
-  Color(0xFF2563EB),
-  Color(0xFFDC2626),
-  Color(0xFF16A34A),
-  Color(0xFFF59E0B),
-  Color(0xFF7C3AED),
-  Color(0xFF0891B2),
-  Color(0xFFDB2777),
-  Color(0xFF4D7C0F),
-  Color(0xFFEA580C),
-  Color(0xFF475569),
-  Color(0xFF0F766E),
-  Color(0xFF9333EA),
+  Color(0xFF4F7D73),
+  Color(0xFFA35F56),
+  Color(0xFF6F7F54),
+  Color(0xFF5F6F8C),
+  Color(0xFF8A6E85),
+  Color(0xFFB08A55),
+  Color(0xFF4E6B7A),
+  Color(0xFF9A6B73),
+  Color(0xFF6C8A7A),
+  Color(0xFF8B735E),
+  Color(0xFF6A7B61),
+  Color(0xFF7A6671),
 ];
 
 class CategoryPieChart extends StatelessWidget {

@@ -498,6 +498,30 @@ String formatDateOnly(DateTime date) {
   return '${date.year}-${two(date.month)}-${two(date.day)}';
 }
 
+String formatMonthDayYearDate(DateTime date) {
+  String two(int v) => v.toString().padLeft(2, '0');
+  return '${two(date.month)}-${two(date.day)}-${date.year}';
+}
+
+DateTime? parseMonthDayYearDate(String raw) {
+  final value = raw.trim();
+  final match = RegExp(r'^(\d{1,2})-(\d{1,2})-(\d{4})$').firstMatch(value);
+  if (match == null) {
+    return null;
+  }
+  final month = int.parse(match.group(1)!);
+  final day = int.parse(match.group(2)!);
+  final year = int.parse(match.group(3)!);
+  if (month < 1 || month > 12 || day < 1 || day > 31) {
+    return null;
+  }
+  final date = DateTime(year, month, day);
+  if (date.year != year || date.month != month || date.day != day) {
+    return null;
+  }
+  return date;
+}
+
 String categoryDisplayName(
   List<Category> categories,
   String categoryL1Id,
@@ -521,6 +545,16 @@ String _categoryName(List<Category> categories, String id) {
     }
   }
   return id;
+}
+
+String transactionDetailLine({
+  required String description,
+  required String counterparty,
+}) {
+  return [
+    if (description.trim().isNotEmpty) description.trim(),
+    if (counterparty.trim().isNotEmpty) counterparty.trim(),
+  ].join(' · ');
 }
 
 String formatCompactDate(DateTime date) {

@@ -60,6 +60,13 @@ class _SmsImportPageState extends State<SmsImportPage> {
         title: const Text('短信导入'),
         actions: [
           IconButton(
+            tooltip: '清除本机短信隐藏记录',
+            onPressed: loading || importingSelected
+                ? null
+                : _clearHiddenSmsRecords,
+            icon: const Icon(Icons.cleaning_services_outlined),
+          ),
+          IconButton(
             tooltip: '刷新',
             onPressed: loading || importingSelected ? null : _scan,
             icon: const Icon(Icons.refresh),
@@ -92,13 +99,6 @@ class _SmsImportPageState extends State<SmsImportPage> {
                   onPressed: hasPermission && !importingSelected ? _scan : null,
                   icon: const Icon(Icons.sms),
                   label: const Text('重新扫描'),
-                ),
-                OutlinedButton.icon(
-                  onPressed: loading || importingSelected
-                      ? null
-                      : _clearHiddenSmsRecords,
-                  icon: const Icon(Icons.cleaning_services_outlined),
-                  label: const Text('清除本机短信隐藏记录'),
                 ),
                 if (candidates.isNotEmpty && !selectionMode)
                   OutlinedButton.icon(

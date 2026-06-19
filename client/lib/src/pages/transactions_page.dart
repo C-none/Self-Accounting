@@ -318,77 +318,50 @@ class _FilterPanel extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final spacing = constraints.maxWidth >= 560 ? 10.0 : 8.0;
-            final columns = constraints.maxWidth >= 900
-                ? 4
-                : constraints.maxWidth >= 560
-                ? 2
-                : 1;
-            final controlWidth =
-                (constraints.maxWidth - spacing * (columns - 1)) / columns;
-            final controls = [
-              _DirectionDropdown(
-                value: direction,
-                onChanged: (value) =>
-                    onChanged(value, null, memberId, accountId),
-              ),
-              _CategoryDropdown(
-                value: categoryL1Id,
-                categories: categories,
-                onChanged: (value) =>
-                    onChanged(direction, value, memberId, accountId),
-              ),
-              _MemberDropdown(
-                value: memberId,
-                members: bootstrap.members,
-                onChanged: (value) =>
-                    onChanged(direction, categoryL1Id, value, accountId),
-              ),
-              _AccountDropdown(
-                value: accountId,
-                accounts: bootstrap.accounts,
-                onChanged: (value) =>
-                    onChanged(direction, categoryL1Id, memberId, value),
-              ),
-            ];
+            const spacing = 8.0;
             return Column(
               children: [
-                Wrap(
-                  spacing: spacing,
-                  runSpacing: 8,
-                  children: [
-                    for (final control in controls)
-                      SizedBox(width: controlWidth, child: control),
-                  ],
+                _FilterControlRow(
+                  left: _DirectionDropdown(
+                    value: direction,
+                    onChanged: (value) =>
+                        onChanged(value, null, memberId, accountId),
+                  ),
+                  right: _CategoryDropdown(
+                    value: categoryL1Id,
+                    categories: categories,
+                    onChanged: (value) =>
+                        onChanged(direction, value, memberId, accountId),
+                  ),
                 ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _DateInputField(
-                        label: '起始日期',
-                        value: fromDate,
-                        defaultDate: defaultFromDate,
-                        onChanged: (date) => onDateChanged(date, toDate),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: _DateInputField(
-                        label: '结束日期',
-                        value: toDate,
-                        defaultDate: defaultToDate,
-                        onChanged: (date) => onDateChanged(fromDate, date),
-                      ),
-                    ),
-                    IconButton(
-                      tooltip: '清除日期',
-                      onPressed: fromDate == null && toDate == null
-                          ? null
-                          : () => onDateChanged(null, null),
-                      icon: const Icon(Icons.clear),
-                    ),
-                  ],
+                const SizedBox(height: spacing),
+                _FilterControlRow(
+                  left: _MemberDropdown(
+                    value: memberId,
+                    members: bootstrap.members,
+                    onChanged: (value) =>
+                        onChanged(direction, categoryL1Id, value, accountId),
+                  ),
+                  right: _AccountDropdown(
+                    value: accountId,
+                    accounts: bootstrap.accounts,
+                    onChanged: (value) =>
+                        onChanged(direction, categoryL1Id, memberId, value),
+                  ),
+                ),
+                const SizedBox(height: spacing),
+                _DateInputField(
+                  label: '起始日期',
+                  value: fromDate,
+                  defaultDate: defaultFromDate,
+                  onChanged: (date) => onDateChanged(date, toDate),
+                ),
+                const SizedBox(height: spacing),
+                _DateInputField(
+                  label: '结束日期',
+                  value: toDate,
+                  defaultDate: defaultToDate,
+                  onChanged: (date) => onDateChanged(fromDate, date),
                 ),
                 const SizedBox(height: 8),
                 TextField(
@@ -412,6 +385,24 @@ class _FilterPanel extends StatelessWidget {
   }
 }
 
+class _FilterControlRow extends StatelessWidget {
+  const _FilterControlRow({required this.left, required this.right});
+
+  final Widget left;
+  final Widget right;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(flex: 2, child: left),
+        const SizedBox(width: 8),
+        Expanded(flex: 4, child: right),
+      ],
+    );
+  }
+}
+
 class _DateInputField extends StatelessWidget {
   const _DateInputField({
     required this.label,
@@ -429,16 +420,27 @@ class _DateInputField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextFormField(
       key: ValueKey('$label-${value?.millisecondsSinceEpoch ?? 0}'),
-      initialValue: value == null ? '' : formatCompactDate(value!),
-      keyboardType: TextInputType.number,
+      initialValue: value == null ? '' : formatMonthDayYearDate(value!),
+      keyboardType: TextInputType.datetime,
       decoration: InputDecoration(
         labelText: label,
         floatingLabelBehavior: FloatingLabelBehavior.always,
-        hintText: formatCompactDate(defaultDate),
-        suffixIcon: IconButton(
-          tooltip: '选择$label',
-          onPressed: () => _pickDate(context),
-          icon: const Icon(Icons.arrow_drop_down),
+        hintText: formatMonthDayYearDate(defaultDate),
+        suffixIcon: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (value != null)
+              IconButton(
+                tooltip: '清除$label',
+                onPressed: () => onChanged(null),
+                icon: const Icon(Icons.clear),
+              ),
+            IconButton(
+              tooltip: '选择$label',
+              onPressed: () => _pickDate(context),
+              icon: const Icon(Icons.arrow_drop_down),
+            ),
+          ],
         ),
       ),
       onChanged: (raw) {
@@ -447,7 +449,7 @@ class _DateInputField extends StatelessWidget {
           onChanged(null);
           return;
         }
-        final parsed = parseCompactDate(trimmed);
+        final parsed = parseMonthDayYearDate(trimmed);
         if (parsed != null) {
           onChanged(parsed);
         }
@@ -527,12 +529,10 @@ class _TransactionTile extends StatelessWidget {
       item.categoryL2Id,
     );
     final member = nameOf(bootstrap.members, item.memberId);
-    final account = nameOf(bootstrap.accounts, item.accountId);
-    final details = [
-      if (item.counterparty.trim().isNotEmpty) item.counterparty.trim(),
-      if (item.description.trim().isNotEmpty) item.description.trim(),
-      account,
-    ].join(' · ');
+    final details = transactionDetailLine(
+      description: item.description,
+      counterparty: item.counterparty,
+    );
     final color = item.direction == 'income'
         ? Colors.green.shade700
         : item.direction == 'transfer'
@@ -559,13 +559,15 @@ class _TransactionTile extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        details,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
+                      if (details.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          details,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ],
                       const SizedBox(height: 4),
                       Text(
                         '$member - ${formatTimeOnly(item.transactionTime)}',
